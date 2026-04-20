@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Red Social Cannabica",
+    "slug": "redsocial-cannabica-mobile",
+    "scheme": "redsocialcannabica",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7cce7574-6d22-485d-a00a-4f9d385ca079"
+      }
+    }
+  }
+}
