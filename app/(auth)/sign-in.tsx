@@ -2,8 +2,6 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
 import { supabase } from "../../src/lib/supabase";
-import { colors } from "../../src/theme/colors";
-import { radius } from "../../src/theme/radius";
 import { typography } from "../../src/theme/typography";
 
 export default function SignInScreen() {
@@ -53,8 +51,11 @@ export default function SignInScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Iniciar sesión</Text>
-        <Text style={styles.subtitle}>Accede de forma rápida y privada</Text>
+        <View style={styles.welcomeBlock}>
+          <Text style={styles.overline}>Premium Wellness Network</Text>
+          <Text style={styles.title}>Bienvenido</Text>
+          <Text style={styles.subtitle}>Accede a tu espacio privado de comunidad y bienestar.</Text>
+        </View>
 
         <View style={styles.actions}>
           <TextInput
@@ -63,7 +64,7 @@ export default function SignInScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
             placeholder="Email"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="#7A7F86"
             style={styles.input}
           />
 
@@ -72,19 +73,27 @@ export default function SignInScreen() {
             onChangeText={setPassword}
             secureTextEntry
             placeholder="Contraseña"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="#7A7F86"
             style={styles.input}
           />
 
           {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-          <Pressable style={styles.providerButton} onPress={handleSignIn} disabled={loading}>
+          <Pressable
+            style={({ pressed }) => [styles.providerButton, pressed && styles.providerButtonPressed]}
+            onPress={handleSignIn}
+            disabled={loading}
+          >
             <Text style={styles.providerButtonText}>
               {loading ? "Procesando..." : "Entrar"}
             </Text>
           </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={handleSignUp} disabled={loading}>
+          <Pressable
+            style={({ pressed }) => [styles.secondaryButton, pressed && styles.secondaryButtonPressed]}
+            onPress={handleSignUp}
+            disabled={loading}
+          >
             <Text style={styles.secondaryButtonText}>Registrarse</Text>
           </Pressable>
         </View>
@@ -100,68 +109,94 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: "#FCFBF8"
   },
   container: {
     flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center"
+    paddingHorizontal: 28,
+    justifyContent: "space-between",
+    paddingTop: 64,
+    paddingBottom: 32
+  },
+  welcomeBlock: {
+    marginTop: 10
+  },
+  overline: {
+    color: "#2D463E",
+    fontSize: 12,
+    letterSpacing: 1.2,
+    textTransform: "uppercase"
   },
   title: {
-    color: colors.textPrimary,
-    ...typography.title
+    color: "#1A1B1E",
+    fontSize: 42,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+    marginTop: 12
   },
   subtitle: {
-    marginTop: 6,
-    color: colors.textSecondary,
-    ...typography.body
+    marginTop: 12,
+    color: "#5F6368",
+    fontSize: 16,
+    lineHeight: 30
   },
   actions: {
-    marginTop: 24
+    marginTop: 26
   },
   input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: "#F8F5EF",
+    borderColor: "#E8E2D7",
     borderWidth: 1,
-    borderRadius: radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
-    color: colors.textPrimary,
-    ...typography.body
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    marginBottom: 12,
+    color: "#1A1B1E",
+    fontSize: 15
   },
   providerButton: {
-    backgroundColor: colors.pine,
-    borderRadius: radius.lg,
-    paddingVertical: 14,
+    backgroundColor: "#2D463E",
+    borderRadius: 18,
+    paddingVertical: 16,
     alignItems: "center",
-    marginBottom: 10
+    marginTop: 6
+  },
+  providerButtonPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.99 }]
   },
   providerButtonText: {
-    color: colors.surface,
-    ...typography.subtitle
+    color: "#FCFBF8",
+    fontSize: 16,
+    fontWeight: "600"
   },
   secondaryButton: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: "transparent",
+    borderColor: "#D9D2C6",
     borderWidth: 1,
-    borderRadius: radius.lg,
+    borderRadius: 18,
     paddingVertical: 14,
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: 10
+  },
+  secondaryButtonPressed: {
+    opacity: 0.9
   },
   secondaryButtonText: {
-    color: colors.textPrimary,
-    ...typography.subtitle
+    color: "#1A1B1E",
+    fontSize: 15,
+    fontWeight: "500"
   },
   errorText: {
-    color: "#C25454",
+    color: "#8D3F3F",
     ...typography.caption,
-    marginBottom: 8
+    marginBottom: 6
   },
   privacyText: {
     marginTop: 20,
-    color: colors.textSecondary,
+    color: "#7A7F86",
     ...typography.caption,
-    textAlign: "center"
+    textAlign: "center",
+    lineHeight: 20
   }
 });

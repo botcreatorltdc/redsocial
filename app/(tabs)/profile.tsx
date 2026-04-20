@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
 import { supabase } from "../../src/lib/supabase";
-import { colors } from "../../src/theme/colors";
 import { radius } from "../../src/theme/radius";
 import { typography } from "../../src/theme/typography";
 
@@ -78,6 +77,11 @@ export default function ProfileScreen() {
 
   const displayName = profile?.full_name || profile?.username || "Usuario";
   const avatarInitial = (displayName || "U").charAt(0).toUpperCase();
+  const stats = [
+    { label: "Reseñas", value: "24" },
+    { label: "Likes", value: "128" },
+    { label: "Clubes", value: "6" }
+  ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -91,9 +95,18 @@ export default function ProfileScreen() {
             </View>
           )}
           <Text style={styles.nickname}>{loading ? "Cargando..." : displayName}</Text>
-          <Text style={styles.reviewCount}>
+          <Text style={styles.usernameLine}>
             {profile?.username ? `@${profile.username}` : "Perfil pendiente de completar"}
           </Text>
+        </View>
+
+        <View style={styles.statsRow}>
+          {stats.map((stat) => (
+            <View key={stat.label} style={styles.statItem}>
+              <Text style={styles.statValue}>{stat.value}</Text>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+            </View>
+          ))}
         </View>
 
         {!profile?.username ? (
@@ -126,95 +139,119 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: "#FCFBF8"
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16
+    paddingHorizontal: 20,
+    paddingTop: 20
   },
   header: {
     alignItems: "center",
-    marginBottom: 20
+    marginBottom: 16
   },
   avatar: {
-    width: 84,
-    height: 84,
+    width: 96,
+    height: 96,
     borderRadius: radius.pill,
-    backgroundColor: colors.sage,
+    backgroundColor: "#DCE8E2",
     alignItems: "center",
     justifyContent: "center"
   },
   avatarImage: {
-    width: 84,
-    height: 84,
+    width: 96,
+    height: 96,
     borderRadius: radius.pill
   },
   avatarText: {
-    color: colors.surface,
-    ...typography.title
+    color: "#1A1B1E",
+    fontSize: 28,
+    fontWeight: "600"
   },
   nickname: {
-    marginTop: 10,
-    color: colors.textPrimary,
-    ...typography.title,
-    fontSize: 22
+    marginTop: 14,
+    color: "#1A1B1E",
+    fontSize: 28,
+    fontWeight: "600",
+    letterSpacing: 0.2
   },
-  reviewCount: {
-    marginTop: 4,
-    color: colors.textSecondary,
-    ...typography.body
+  usernameLine: {
+    marginTop: 6,
+    color: "#5F6368",
+    fontSize: 14,
+    lineHeight: 24
+  },
+  statsRow: {
+    flexDirection: "row",
+    backgroundColor: "#F7F4EE",
+    borderRadius: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    marginBottom: 18
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center"
+  },
+  statValue: {
+    color: "#1A1B1E",
+    fontSize: 20,
+    fontWeight: "600"
+  },
+  statLabel: {
+    marginTop: 3,
+    color: "#5F6368",
+    ...typography.caption
   },
   sectionCard: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radius.lg,
-    padding: 14,
-    marginBottom: 12
+    backgroundColor: "#FCFBF8",
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 1
   },
   sectionTitle: {
-    color: colors.textPrimary,
-    ...typography.subtitle
-  },
-  sectionSubtitle: {
-    marginTop: 6,
-    color: colors.textSecondary,
-    ...typography.body
+    color: "#1A1B1E",
+    fontSize: 18,
+    fontWeight: "500"
   },
   input: {
-    marginTop: 8,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    marginTop: 12,
+    backgroundColor: "#F8F5EF",
+    borderColor: "#E8E2D7",
     borderWidth: 1,
-    borderRadius: radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.textPrimary,
-    ...typography.body
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: "#1A1B1E",
+    fontSize: 15
   },
   primaryButton: {
-    marginTop: 10,
-    backgroundColor: colors.pine,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    marginTop: 12,
+    backgroundColor: "#2D463E",
+    borderRadius: 16,
+    paddingVertical: 14,
     alignItems: "center"
   },
   primaryButtonText: {
-    color: colors.surface,
-    ...typography.subtitle
+    color: "#FCFBF8",
+    fontSize: 15,
+    fontWeight: "600"
   },
   signOutButton: {
-    marginTop: 8,
-    borderColor: colors.border,
-    borderWidth: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    marginTop: 6,
+    backgroundColor: "#F2EEE6",
+    borderRadius: 16,
+    paddingVertical: 14,
     alignItems: "center"
   },
   signOutText: {
-    color: colors.textPrimary,
-    ...typography.subtitle
+    color: "#1A1B1E",
+    fontSize: 15,
+    fontWeight: "500"
   }
 });

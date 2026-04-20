@@ -300,40 +300,48 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: "#FCFBF8"
   },
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 28
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 36
   },
   header: {
-    marginBottom: 16
+    marginBottom: 24,
+    paddingHorizontal: 2
   },
   greeting: {
-    color: colors.textPrimary,
-    ...typography.title
+    color: "#1A1B1E",
+    fontSize: 30,
+    fontWeight: "600",
+    letterSpacing: 0.2
   },
   subtitle: {
-    color: colors.textSecondary,
-    ...typography.body,
-    marginTop: 4
+    color: "#5F6368",
+    fontSize: 15,
+    lineHeight: 28,
+    marginTop: 8
   },
   emptyState: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderColor: colors.border,
-    borderWidth: 1,
-    padding: 14
+    backgroundColor: "#FCFBF8",
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 1
   },
   emptyTitle: {
-    color: colors.textPrimary,
+    color: "#1A1B1E",
     ...typography.subtitle
   },
   emptySubtitle: {
-    color: colors.textSecondary,
+    color: "#5F6368",
     ...typography.body,
-    marginTop: 4
+    marginTop: 8,
+    lineHeight: 24
   },
   floatingButton: {
     position: "absolute",
@@ -342,9 +350,14 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 999,
-    backgroundColor: colors.pine,
+    backgroundColor: "#2D463E",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4
   },
   floatingButtonText: {
     color: colors.surface,

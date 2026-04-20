@@ -14,6 +14,9 @@
       "eas": {
         "projectId": "7cce7574-6d22-485d-a00a-4f9d385ca079"
       }
+    },
+    "android": {
+      "package": "com.germanroobles.redsocialcannabicamobile"
     }
   }
 }

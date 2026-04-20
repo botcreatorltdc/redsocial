@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "../../../theme/colors";
 import { radius } from "../../../theme/radius";
 import { typography } from "../../../theme/typography";
 
@@ -20,11 +19,6 @@ export type FeedReviewCardProps = {
   onPress?: () => void;
 };
 
-function renderStars(rating: number) {
-  const safeRating = Math.max(1, Math.min(5, Math.round(rating)));
-  return "★".repeat(safeRating) + "☆".repeat(5 - safeRating);
-}
-
 export function FeedReviewCard({
   reviewId,
   authorName,
@@ -39,6 +33,8 @@ export function FeedReviewCard({
   avatarUrl,
   onPress
 }: FeedReviewCardProps) {
+  const starText = "★".repeat(Math.max(1, Math.min(5, Math.round(rating))));
+
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.header}>
@@ -55,30 +51,34 @@ export function FeedReviewCard({
           <Text style={styles.author} numberOfLines={1}>
             {authorName}
           </Text>
-          <Text style={styles.meta} numberOfLines={1}>
-            {clubName} · {createdAtLabel}
+          <View style={styles.metaRow}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText} numberOfLines={1}>
+                {clubName}
+              </Text>
+            </View>
+            <Text style={styles.metaDate} numberOfLines={1}>
+              {createdAtLabel}
+            </Text>
+          </View>
+          <Text style={styles.ratingMinimal}>{starText}</Text>
+          <Text style={styles.review} numberOfLines={4}>
+            {reviewText}
           </Text>
         </View>
-        <View style={styles.ratingPill}>
-          <Text style={styles.ratingText}>{renderStars(rating)}</Text>
-        </View>
       </View>
-
-      <Text style={styles.review} numberOfLines={4}>
-        {reviewText}
-      </Text>
 
       <View style={styles.actionsRow}>
         <Pressable style={styles.actionItem} onPress={() => onToggleLike?.(reviewId)}>
           <Ionicons
             name={isLiked ? "heart" : "heart-outline"}
             size={16}
-            color={isLiked ? colors.terracotta : colors.textSecondary}
+            color={isLiked ? "#2D463E" : "#5F6368"}
           />
           <Text style={styles.actionText}>{likesCount}</Text>
         </Pressable>
         <View style={styles.actionItem}>
-          <Ionicons name="chatbubble-outline" size={16} color={colors.textSecondary} />
+          <Ionicons name="chatbubble-outline" size={16} color="#5F6368" />
           <Text style={styles.actionText}>{commentsCount}</Text>
         </View>
       </View>
@@ -89,77 +89,92 @@ export function FeedReviewCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FCFBF8",
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radius.lg,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 1
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2
   },
   header: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10
+    alignItems: "flex-start"
   },
   avatar: {
-    width: 44,
-    height: 44,
+    width: 34,
+    height: 34,
     borderRadius: radius.pill,
-    marginRight: 10
+    marginRight: 12
   },
   avatarPlaceholder: {
-    backgroundColor: colors.sage,
+    backgroundColor: "#DCE8E2",
     alignItems: "center",
     justifyContent: "center"
   },
   avatarInitial: {
-    color: colors.surface,
-    ...typography.subtitle
+    color: "#1A1B1E",
+    fontSize: 13,
+    fontWeight: "700"
   },
   headerText: {
     flex: 1,
     minWidth: 0
   },
   author: {
-    color: colors.textPrimary,
-    ...typography.subtitle
+    color: "#1A1B1E",
+    fontSize: 15,
+    fontWeight: "600",
+    letterSpacing: 0.2
   },
-  meta: {
-    color: colors.textSecondary,
+  metaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  badge: {
+    backgroundColor: "#EEF3F0",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    maxWidth: "65%"
+  },
+  badgeText: {
+    color: "#2D463E",
     ...typography.caption
   },
-  ratingPill: {
-    backgroundColor: "#F3E7E1",
-    borderRadius: radius.md,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginLeft: 8
-  },
-  ratingText: {
-    color: colors.terracotta,
+  metaDate: {
+    marginLeft: 8,
+    color: "#6C7076",
     ...typography.caption
+  },
+  ratingMinimal: {
+    marginTop: 10,
+    color: "#2D463E",
+    fontSize: 12,
+    letterSpacing: 1.2
   },
   review: {
-    color: colors.textPrimary,
-    ...typography.body
+    marginTop: 10,
+    color: "#1A1B1E",
+    fontSize: 14,
+    lineHeight: 24
   },
   actionsRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10
+    marginTop: 14,
+    paddingTop: 10
   },
   actionItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 16
+    marginRight: 20
   },
   actionText: {
     marginLeft: 6,
-    color: colors.textSecondary,
+    color: "#5F6368",
     ...typography.caption
   }
 });
