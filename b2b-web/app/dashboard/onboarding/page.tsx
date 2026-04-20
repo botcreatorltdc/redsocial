@@ -25,11 +25,12 @@ export default function DashboardOnboardingPage() {
     }
 
     const { error: insertError } = await supabase.from("clubs").insert({
-      name: clubName,
-      address,
+      // No enviamos id: Supabase usa el default de la tabla
+      name: clubName.trim(),
+      address: address.trim(),
       owner_id: ownerId,
-      lat: 0,
-      lng: 0
+      lat: 0.0,
+      lng: 0.0
     });
 
     if (insertError) {
