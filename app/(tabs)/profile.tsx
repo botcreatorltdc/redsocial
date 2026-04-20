@@ -114,7 +114,7 @@ export default function ProfileScreen() {
             <Text style={styles.sectionTitle}>Completar Perfil</Text>
             <TextInput
               placeholder="Elige un username"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor="#7A7F86"
               value={usernameInput}
               onChangeText={setUsernameInput}
               autoCapitalize="none"
