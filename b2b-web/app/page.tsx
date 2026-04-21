@@ -43,20 +43,9 @@ export default function LoginPage() {
       return;
     }
 
-    const userId = data.user?.id;
-    if (userId) {
-      const username = email.split("@")[0]?.trim() || "club";
-      await (supabase as any).from("profiles").upsert(
-        {
-          id: userId,
-          username,
-          full_name: null
-        },
-        { onConflict: "id" }
-      );
-    }
-
-    setInfo("Cuenta creada. Ahora inicia sesión para continuar en el panel de club.");
+    // No insertamos perfil aquí porque puede fallar con RLS (403) si aún no hay sesión confirmada.
+    // La creación del profile debe resolverse vía trigger en Supabase o al primer login autenticado.
+    setInfo("Cuenta creada. Revisa tu email si pide confirmación y luego inicia sesión.");
     setMode("signin");
     setLoading(false);
   };
