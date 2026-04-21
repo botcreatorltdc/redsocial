@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { supabase } from "../../src/lib/supabase";
 import { radius } from "../../src/theme/radius";
 import { typography } from "../../src/theme/typography";
@@ -17,10 +17,10 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [usernameInput, setUsernameInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      setLoading(true);
+  const loadProfile = async () => {
+      if (!refreshing) setLoading(true);
       const { data: authData } = await supabase.auth.getUser();
       const currentUser = authData.user;
 
@@ -41,10 +41,17 @@ export default function ProfileScreen() {
         setUsernameInput((profileData as ProfileData).username ?? "");
       }
       setLoading(false);
+      setRefreshing(false);
     };
 
+  useEffect(() => {
     void loadProfile();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    void loadProfile();
+  };
 
   const handleCompleteProfile = async () => {
     if (!userId || !usernameInput.trim()) {
@@ -85,7 +92,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
           {profile?.avatar_url ? (
             <Image source={{ uri: profile.avatar_url }} style={styles.avatarImage} />
@@ -131,7 +141,7 @@ export default function ProfileScreen() {
         <Pressable style={styles.signOutButton} onPress={handleSignOut}>
           <Text style={styles.signOutText}>Cerrar Sesión</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

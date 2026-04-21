@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { geocodeAddress } from "../../../lib/geocode";
+import { uploadClubImage } from "../../../lib/mediaUpload";
 import { supabase } from "../../../lib/supabase";
 
 type ClubFormData = {
@@ -9,6 +11,8 @@ type ClubFormData = {
   name: string;
   description: string;
   address: string;
+  cover_image: string;
+  logo_url: string;
   lat: string;
   lng: string;
 };
@@ -24,9 +28,14 @@ export default function ClubSettingsPage() {
     name: "",
     description: "",
     address: "",
+    cover_image: "",
+    logo_url: "",
     lat: "",
     lng: ""
   });
+  const [isLocating, setIsLocating] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     const loadClub = async () => {
@@ -40,7 +49,7 @@ export default function ClubSettingsPage() {
 
       const { data: club, error: selectError } = await supabase
         .from("clubs")
-        .select("id, name, description, address, lat, lng")
+        .select("id, name, description, address, cover_image, amenities_json, lat, lng")
         .eq("owner_id", userId)
         .limit(1)
         .maybeSingle();
@@ -61,6 +70,11 @@ export default function ClubSettingsPage() {
         name: club.name ?? "",
         description: club.description ?? "",
         address: club.address ?? "",
+        cover_image: club.cover_image ?? "",
+        logo_url:
+          typeof (club as any).amenities_json === "object" && (club as any).amenities_json
+            ? String((club as any).amenities_json.logo_url ?? "")
+            : "",
         lat: typeof club.lat === "number" ? String(club.lat) : "",
         lng: typeof club.lng === "number" ? String(club.lng) : ""
       });
@@ -80,13 +94,49 @@ export default function ClubSettingsPage() {
     setError("");
     setSuccess("");
 
-    const lat = Number(form.lat);
-    const lng = Number(form.lng);
+    let lat = Number(form.lat);
+    let lng = Number(form.lng);
 
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      setError("Latitud y longitud deben ser números válidos.");
+      setIsLocating(true);
+      const coords = await geocodeAddress(form.address);
+      setIsLocating(false);
+      if (!coords) {
+        setError("Latitud/longitud inválidas y no pudimos geocodificar la dirección.");
+        setSaving(false);
+        return;
+      }
+      lat = coords.lat;
+      lng = coords.lng;
+    }
+
+    const session = (await supabase.auth.getSession()).data.session;
+    const ownerId = session?.user.id;
+    if (!ownerId) {
+      setError("Tu sesión expiró. Vuelve a iniciar sesión.");
       setSaving(false);
       return;
+    }
+
+    let nextCover = form.cover_image || null;
+    let nextLogo = form.logo_url || null;
+    if (coverFile) {
+      const upload = await uploadClubImage(coverFile, ownerId, "cover");
+      if (upload.error || !upload.url) {
+        setError("No se pudo subir la portada. Revisa bucket 'club-media'.");
+        setSaving(false);
+        return;
+      }
+      nextCover = upload.url;
+    }
+    if (logoFile) {
+      const upload = await uploadClubImage(logoFile, ownerId, "logo");
+      if (upload.error || !upload.url) {
+        setError("No se pudo subir el logo. Revisa bucket 'club-media'.");
+        setSaving(false);
+        return;
+      }
+      nextLogo = upload.url;
     }
 
     const { error: updateError } = await supabase
@@ -95,6 +145,10 @@ export default function ClubSettingsPage() {
         name: form.name,
         description: form.description || null,
         address: form.address,
+        cover_image: nextCover,
+        amenities_json: {
+          logo_url: nextLogo
+        },
         lat,
         lng
       })
@@ -151,6 +205,32 @@ export default function ClubSettingsPage() {
           />
         </label>
 
+        <label className="grid gap-2 text-sm text-botanical-text">
+          Imagen portada (URL)
+          <input
+            value={form.cover_image}
+            onChange={(e) => handleChange("cover_image", e.target.value)}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
+          />
+        </label>
+        <label className="grid gap-2 text-sm text-botanical-text">
+          o subir portada
+          <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
+        </label>
+
+        <label className="grid gap-2 text-sm text-botanical-text">
+          Logo (URL)
+          <input
+            value={form.logo_url}
+            onChange={(e) => handleChange("logo_url", e.target.value)}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
+          />
+        </label>
+        <label className="grid gap-2 text-sm text-botanical-text">
+          o subir logo
+          <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} />
+        </label>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-2 text-sm text-botanical-text">
             Latitud
@@ -177,10 +257,10 @@ export default function ClubSettingsPage() {
 
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || isLocating}
           className="w-fit rounded-full bg-botanical-primary px-6 py-3 text-sm font-medium tracking-[0.06em] text-white"
         >
-          {saving ? "Guardando..." : "Guardar Cambios"}
+          {isLocating ? "Geocodificando..." : saving ? "Guardando..." : "Guardar Cambios"}
         </button>
       </form>
     </main>

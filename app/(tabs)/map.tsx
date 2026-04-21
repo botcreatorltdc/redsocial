@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ClubMapCard } from "../../src/features/map/components/ClubMapCard";
 import { supabase } from "../../src/lib/supabase";
 
@@ -30,11 +30,12 @@ function calculateMockDistanceKm(latitude: number, longitude: number) {
 export default function MapScreen() {
   const [clubs, setClubs] = useState<ClubMapItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadClubs = async () => {
-      setLoading(true);
+  const loadClubs = async () => {
+      if (!refreshing) setLoading(true);
       const { data, error } = await supabase
         .from("clubs")
         .select("id, name, lat, lng, is_verified")
@@ -59,12 +60,25 @@ export default function MapScreen() {
 
       setClubs(mapped);
       setLoading(false);
+      setRefreshing(false);
     };
 
+  useEffect(() => {
     void loadClubs();
   }, []);
 
-  const selectedClub = useMemo(() => clubs.find((club) => club.id === selectedClubId) ?? null, [clubs, selectedClubId]);
+  const onRefresh = () => {
+    setRefreshing(true);
+    void loadClubs();
+  };
+
+  const filteredClubs = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return clubs;
+    return clubs.filter((club) => club.name.toLowerCase().includes(q));
+  }, [clubs, search]);
+
+  const selectedClub = useMemo(() => filteredClubs.find((club) => club.id === selectedClubId) ?? null, [filteredClubs, selectedClubId]);
 
   if (Platform.OS === "web") {
     return (
@@ -78,9 +92,23 @@ export default function MapScreen() {
           </View>
         ) : null}
 
-        <View className="flex-1 px-4 pt-20">
+        <ScrollView
+          className="flex-1 px-4 pt-20"
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Buscar club..."
+            className="mb-3 rounded-2xl border border-botanical-line bg-white px-4 py-3 text-botanical-text"
+          />
           <Text className="mb-3 text-botanical-primary">Selecciona un club para ver la ficha inferior de descubrimiento.</Text>
-          {clubs.map((club) => (
+          {filteredClubs.length === 0 ? (
+            <View className="rounded-3xl bg-botanical-cream p-4">
+              <Text className="text-botanical-muted">No encontramos clubes para esta búsqueda.</Text>
+            </View>
+          ) : null}
+          {filteredClubs.map((club) => (
             <Pressable
               key={club.id}
               className="mb-2 rounded-[20px] border border-botanical-line bg-white px-3.5 py-3"
@@ -89,7 +117,7 @@ export default function MapScreen() {
               <Text className="text-botanical-muted">{club.name}</Text>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
 
         {selectedClub ? (
           <View className="absolute bottom-0 left-0 right-0">
@@ -121,7 +149,7 @@ export default function MapScreen() {
       ) : null}
 
       <MapView style={styles.map} initialRegion={initialRegion}>
-        {clubs.map((club) => (
+        {filteredClubs.map((club) => (
           <Marker
             key={club.id}
             coordinate={{ latitude: club.latitude, longitude: club.longitude }}

@@ -9,6 +9,7 @@ type ClubRow = {
   name: string;
   address: string | null;
   description: string | null;
+  cover_image: string | null;
 };
 
 type ExploreCard = {
@@ -43,7 +44,7 @@ export default function HomeScreen() {
 
     const { data: clubsData, error } = await (supabase as any)
       .from("clubs")
-      .select("id, name, address, description")
+      .select("id, name, address, description, cover_image")
       .order("name", { ascending: true })
       .limit(24);
 
@@ -59,7 +60,7 @@ export default function HomeScreen() {
       title: club.name,
       category: ["Terrace", "Lounge", "CBD", "Sativa"][index % 4],
       meta: club.address || club.description || "Experiencia botanica premium",
-      imageUrl: `https://picsum.photos/seed/${club.id}/800/1100`
+      imageUrl: club.cover_image || "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1000&q=80"
     }));
 
     setCards(mappedRows);
@@ -121,7 +122,12 @@ export default function HomeScreen() {
           </Pressable>
         )}
         ListEmptyComponent={
-          !loading ? (
+          loading ? (
+            <View className="space-y-3">
+              <View className="h-40 rounded-3xl bg-botanical-cream" />
+              <View className="h-40 rounded-3xl bg-botanical-cream" />
+            </View>
+          ) : (
             <View
               className="rounded-[32px] bg-botanical-cream p-5"
               style={{ shadowColor: "#2D463E", shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 1 }}

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ProductCard } from "../../src/features/products/components/ProductCard";
 import { supabase } from "../../src/lib/supabase";
 import { colors } from "../../src/theme/colors";
@@ -63,12 +63,12 @@ function matchesCategory(product: ProductItem, category: WellnessCategory) {
 export default function CatalogScreen() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<WellnessCategory>("Dormir");
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
+  const loadProducts = async () => {
+      if (!refreshing) setLoading(true);
       const { data, error } = await supabase
         .from("products")
         .select("id, name, strain_type, thc_avg, cbd_avg, effects_json")
@@ -77,6 +77,7 @@ export default function CatalogScreen() {
       if (error || !data) {
         setProducts([]);
         setLoading(false);
+        setRefreshing(false);
         return;
       }
 
@@ -94,10 +95,17 @@ export default function CatalogScreen() {
 
       setProducts(mapped);
       setLoading(false);
+      setRefreshing(false);
     };
 
+  useEffect(() => {
     void loadProducts();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    void loadProducts();
+  };
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -113,7 +121,11 @@ export default function CatalogScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.pine} />}
+      >
         <Text style={styles.title}>Biblioteca Botánica</Text>
         {loading ? (
           <View style={styles.loadingRow}>
@@ -146,15 +158,27 @@ export default function CatalogScreen() {
         </ScrollView>
 
         <View style={styles.list}>
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              name={product.name}
-              type={normalizeStrainType(product.strainType)}
-              thcPercent={product.thcPercent}
-              cbdPercent={product.cbdPercent}
-            />
-          ))}
+          {loading ? (
+            <>
+              <View style={styles.skeleton} />
+              <View style={styles.skeleton} />
+            </>
+          ) : filteredProducts.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Sin resultados</Text>
+              <Text style={styles.emptyText}>Prueba otro término o cambia la categoría.</Text>
+            </View>
+          ) : (
+            filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                name={product.name}
+                type={normalizeStrainType(product.strainType)}
+                thcPercent={product.thcPercent}
+                cbdPercent={product.cbdPercent}
+              />
+            ))
+          )}
         </View>
       </ScrollView>
     </View>
@@ -221,5 +245,25 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: colors.textSecondary,
     ...typography.caption
+  },
+  skeleton: {
+    height: 96,
+    borderRadius: 20,
+    backgroundColor: "#EFE7DA",
+    marginBottom: 10
+  },
+  emptyCard: {
+    backgroundColor: "#F7F4EE",
+    borderRadius: 20,
+    padding: 14
+  },
+  emptyTitle: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: "600"
+  },
+  emptyText: {
+    marginTop: 4,
+    color: colors.textSecondary
   }
 });

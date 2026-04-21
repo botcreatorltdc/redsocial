@@ -2,13 +2,20 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { geocodeAddress } from "../../../lib/geocode";
+import { uploadClubImage } from "../../../lib/mediaUpload";
 import { supabase } from "../../../lib/supabase";
 
 export default function DashboardOnboardingPage() {
   const router = useRouter();
   const [clubName, setClubName] = useState("");
   const [address, setAddress] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
 
@@ -38,12 +45,47 @@ export default function DashboardOnboardingPage() {
       return;
     }
 
+    setIsLocating(true);
+    const coords = await geocodeAddress(address);
+    setIsLocating(false);
+    if (!coords) {
+      setError("No pudimos validar la dirección. Escribe una dirección más completa.");
+      setLoading(false);
+      return;
+    }
+
+    let nextCoverImage = coverImage.trim() || null;
+    let nextLogoUrl = logoUrl.trim() || null;
+
+    if (coverFile) {
+      const upload = await uploadClubImage(coverFile, ownerId, "cover");
+      if (upload.error || !upload.url) {
+        setError("No se pudo subir la portada. Verifica bucket 'club-media' en Supabase.");
+        setLoading(false);
+        return;
+      }
+      nextCoverImage = upload.url;
+    }
+    if (logoFile) {
+      const upload = await uploadClubImage(logoFile, ownerId, "logo");
+      if (upload.error || !upload.url) {
+        setError("No se pudo subir el logo. Verifica bucket 'club-media' en Supabase.");
+        setLoading(false);
+        return;
+      }
+      nextLogoUrl = upload.url;
+    }
+
     const payload = {
       name: clubName.trim(),
       address: address.trim(),
       owner_id: ownerId,
-      lat: 0.0,
-      lng: 0.0
+      lat: coords.lat,
+      lng: coords.lng,
+      cover_image: nextCoverImage,
+      amenities_json: {
+        logo_url: nextLogoUrl
+      }
     };
 
     const { error: insertError } = await supabase.from("clubs").insert(payload);
@@ -56,7 +98,9 @@ export default function DashboardOnboardingPage() {
             name: payload.name,
             address: payload.address,
             lat: payload.lat,
-            lng: payload.lng
+            lng: payload.lng,
+            cover_image: payload.cover_image,
+            amenities_json: payload.amenities_json
           })
           .eq("owner_id", ownerId);
 
@@ -114,15 +158,43 @@ export default function DashboardOnboardingPage() {
           />
         </label>
 
+        <label className="grid gap-2 text-sm text-botanical-text">
+          URL portada (opcional)
+          <input
+            value={coverImage}
+            onChange={(e) => setCoverImage(e.target.value)}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
+            placeholder="https://..."
+          />
+        </label>
+        <label className="grid gap-2 text-sm text-botanical-text">
+          o subir portada
+          <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
+        </label>
+
+        <label className="grid gap-2 text-sm text-botanical-text">
+          URL logo (opcional)
+          <input
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
+            placeholder="https://..."
+          />
+        </label>
+        <label className="grid gap-2 text-sm text-botanical-text">
+          o subir logo
+          <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} />
+        </label>
+
         {info ? <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{info}</p> : null}
         {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || isLocating}
           className="rounded-full bg-botanical-primary px-5 py-3 text-sm font-medium tracking-[0.06em] text-white"
         >
-          {loading ? "Creando..." : "Crear Club"}
+          {isLocating ? "Validando dirección..." : loading ? "Creando..." : "Crear Club"}
         </button>
       </form>
     </main>
