@@ -137,7 +137,7 @@ export default function HomeScreen() {
               />
               <PrimaryEmptyAction label="Actualizar" onPress={onRefresh} />
             </View>
-          ) : null
+          )
         }
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.pine} />}
       />
