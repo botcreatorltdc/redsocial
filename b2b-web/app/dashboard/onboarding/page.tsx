@@ -46,19 +46,35 @@ export default function DashboardOnboardingPage() {
       lng: 0.0
     };
 
-    // Flujo idempotente: si el owner ya tiene club, lo actualiza en vez de romper con 409.
-    const { error: upsertError } = await supabase
-      .from("clubs")
-      .upsert(payload, { onConflict: "owner_id" });
+    const { error: insertError } = await supabase.from("clubs").insert(payload);
+    if (insertError) {
+      // Si existe restricción de unicidad por owner_id, actualizamos en lugar de fallar.
+      if (insertError.code === "23505") {
+        const { error: updateError } = await supabase
+          .from("clubs")
+          .update({
+            name: payload.name,
+            address: payload.address,
+            lat: payload.lat,
+            lng: payload.lng
+          })
+          .eq("owner_id", ownerId);
 
-    if (upsertError) {
-      if (upsertError.code === "23505") {
-        setInfo("Tu usuario ya tiene un club. Te redirigimos al dashboard...");
+        if (updateError) {
+          setError(
+            `No se pudo actualizar el club (${updateError.code ?? "sin-codigo"}). Revisa constraints/policies en Supabase.`
+          );
+          setLoading(false);
+          return;
+        }
+
+        setInfo("Tu usuario ya tenía un club. Lo actualizamos y te redirigimos al dashboard...");
         setTimeout(() => router.replace("/dashboard"), 900);
         return;
       }
+
       setError(
-        `No se pudo crear el club (${upsertError.code ?? "sin-codigo"}). Revisa constraints/policies en Supabase.`
+        `No se pudo crear el club (${insertError.code ?? "sin-codigo"}). Revisa constraints/policies en Supabase.`
       );
       setLoading(false);
       return;
