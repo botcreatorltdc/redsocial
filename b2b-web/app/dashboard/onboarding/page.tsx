@@ -38,22 +38,28 @@ export default function DashboardOnboardingPage() {
       return;
     }
 
-    const { error: insertError } = await supabase.from("clubs").insert({
-      // No enviamos id: Supabase usa el default de la tabla
+    const payload = {
       name: clubName.trim(),
       address: address.trim(),
       owner_id: ownerId,
       lat: 0.0,
       lng: 0.0
-    });
+    };
 
-    if (insertError) {
-      if (insertError.code === "23505") {
+    // Flujo idempotente: si el owner ya tiene club, lo actualiza en vez de romper con 409.
+    const { error: upsertError } = await supabase
+      .from("clubs")
+      .upsert(payload, { onConflict: "owner_id" });
+
+    if (upsertError) {
+      if (upsertError.code === "23505") {
         setInfo("Tu usuario ya tiene un club. Te redirigimos al dashboard...");
         setTimeout(() => router.replace("/dashboard"), 900);
         return;
       }
-      setError("No se pudo crear el club. Revisa los datos e inténtalo de nuevo.");
+      setError(
+        `No se pudo crear el club (${upsertError.code ?? "sin-codigo"}). Revisa constraints/policies en Supabase.`
+      );
       setLoading(false);
       return;
     }
