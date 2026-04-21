@@ -1,6 +1,8 @@
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { InlineError, PrimaryEmptyAction } from "../../src/components/AppUi";
+import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { ClubMapCard } from "../../src/features/map/components/ClubMapCard";
 import { supabase } from "../../src/lib/supabase";
 
@@ -33,6 +35,7 @@ export default function MapScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   const loadClubs = async () => {
       if (!refreshing) setLoading(true);
@@ -42,10 +45,13 @@ export default function MapScreen() {
         .order("name", { ascending: true });
 
       if (error || !data) {
+        setError("No se pudieron cargar los clubes. Intenta de nuevo.");
         setClubs([]);
         setLoading(false);
+        setRefreshing(false);
         return;
       }
+      setError("");
 
       const rows = (data as any[]) ?? [];
       const mapped: ClubMapItem[] = rows
@@ -83,19 +89,11 @@ export default function MapScreen() {
   if (Platform.OS === "web") {
     return (
       <View className="flex-1 bg-botanical-bg">
-        {loading ? (
-          <View className="absolute top-6 z-10 self-center rounded-full border border-botanical-line bg-white px-3.5 py-2">
-            <View className="flex-row items-center">
-              <ActivityIndicator color="#2D463E" />
-              <Text className="ml-2 text-botanical-muted">Cargando clubes...</Text>
-            </View>
-          </View>
-        ) : null}
-
         <ScrollView
           className="flex-1 px-4 pt-20"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
+          {error ? <InlineError message={error} /> : null}
           <TextInput
             value={search}
             onChangeText={setSearch}
@@ -103,9 +101,11 @@ export default function MapScreen() {
             className="mb-3 rounded-2xl border border-botanical-line bg-white px-4 py-3 text-botanical-text"
           />
           <Text className="mb-3 text-botanical-primary">Selecciona un club para ver la ficha inferior de descubrimiento.</Text>
-          {filteredClubs.length === 0 ? (
-            <View className="rounded-3xl bg-botanical-cream p-4">
-              <Text className="text-botanical-muted">No encontramos clubes para esta búsqueda.</Text>
+          {loading ? <SkeletonList count={3} height={56} /> : null}
+          {!loading && filteredClubs.length === 0 ? (
+            <View>
+              <StateCard title="Sin resultados" description="No encontramos clubes para esta búsqueda." variant="empty" />
+              <PrimaryEmptyAction label="Reintentar" onPress={onRefresh} />
             </View>
           ) : null}
           {filteredClubs.map((club) => (
@@ -140,10 +140,20 @@ export default function MapScreen() {
   return (
     <View className="flex-1 bg-botanical-bg">
       {loading ? (
-        <View className="absolute top-6 z-10 self-center rounded-full border border-botanical-line bg-white px-3.5 py-2">
-          <View className="flex-row items-center">
-            <ActivityIndicator color="#2D463E" />
-            <Text className="ml-2 text-botanical-muted">Cargando clubes...</Text>
+        <View className="absolute left-4 right-4 top-6 z-10">
+          <StateCard title="Cargando clubes..." variant="loading" />
+        </View>
+      ) : null}
+
+      {!loading && filteredClubs.length === 0 ? (
+        <View className="absolute left-4 right-4 top-20 z-10">
+          <View>
+            <StateCard
+              title="No hay clubes con coordenadas"
+              description="Completa direccion y geocodificacion desde el panel B2B."
+              variant="empty"
+            />
+            <PrimaryEmptyAction label="Actualizar" onPress={onRefresh} />
           </View>
         </View>
       ) : null}

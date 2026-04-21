@@ -1,6 +1,8 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { InlineError, SectionHeader } from "../../src/components/AppUi";
+import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { supabase } from "../../src/lib/supabase";
 import { radius } from "../../src/theme/radius";
 import { typography } from "../../src/theme/typography";
@@ -18,6 +20,7 @@ export default function ProfileScreen() {
   const [usernameInput, setUsernameInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
 
   const loadProfile = async () => {
       if (!refreshing) setLoading(true);
@@ -39,6 +42,8 @@ export default function ProfileScreen() {
       if (profileData) {
         setProfile(profileData as ProfileData);
         setUsernameInput((profileData as ProfileData).username ?? "");
+      } else {
+        setError("No se pudo recuperar el perfil. Desliza para reintentar.");
       }
       setLoading(false);
       setRefreshing(false);
@@ -65,14 +70,17 @@ export default function ProfileScreen() {
       avatar_url: profile?.avatar_url ?? null
     };
 
-    const { data } = await (supabase as any)
+    const { data, error: upsertError } = await (supabase as any)
       .from("profiles")
       .upsert(payload)
       .select("username, full_name, avatar_url")
       .maybeSingle();
 
-    if (data) {
+    if (upsertError) {
+      setError("No pudimos guardar tu perfil. Intenta nuevamente.");
+    } else if (data) {
       setProfile(data as ProfileData);
+      setError("");
     }
     setIsSaving(false);
   };
@@ -96,6 +104,15 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {loading ? (
+          <View style={styles.loadingBlock}>
+            <SkeletonList count={1} height={120} />
+            <View style={{ height: 12 }} />
+            <SkeletonList count={2} height={72} />
+          </View>
+        ) : null}
+        <SectionHeader title="Mi Perfil" subtitle="Gestiona tu presencia en la comunidad." />
+        {error ? <InlineError message={error} /> : null}
         <View style={styles.header}>
           {profile?.avatar_url ? (
             <Image source={{ uri: profile.avatar_url }} style={styles.avatarImage} />
@@ -136,7 +153,9 @@ export default function ProfileScreen() {
               </Text>
             </Pressable>
           </View>
-        ) : null}
+        ) : (
+          <StateCard title="Perfil completo" description="Tu cuenta está lista para interactuar." variant="info" />
+        )}
 
         <Pressable style={styles.signOutButton} onPress={handleSignOut}>
           <Text style={styles.signOutText}>Cerrar Sesión</Text>
@@ -159,6 +178,9 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 16
+  },
+  loadingBlock: {
+    marginBottom: 12
   },
   avatar: {
     width: 96,

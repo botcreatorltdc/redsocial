@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { InlineError, PrimaryEmptyAction, SectionHeader } from "../../src/components/AppUi";
+import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { ProductCard } from "../../src/features/products/components/ProductCard";
 import { supabase } from "../../src/lib/supabase";
 import { colors } from "../../src/theme/colors";
@@ -66,6 +68,7 @@ export default function CatalogScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<WellnessCategory>("Dormir");
+  const [error, setError] = useState("");
 
   const loadProducts = async () => {
       if (!refreshing) setLoading(true);
@@ -75,11 +78,13 @@ export default function CatalogScreen() {
         .order("name", { ascending: true });
 
       if (error || !data) {
+        setError("No se pudo cargar el catálogo.");
         setProducts([]);
         setLoading(false);
         setRefreshing(false);
         return;
       }
+      setError("");
 
       const rows = (data as any[]) ?? [];
       const mapped: ProductItem[] = rows.map((product) => ({
@@ -126,7 +131,8 @@ export default function CatalogScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.pine} />}
       >
-        <Text style={styles.title}>Biblioteca Botánica</Text>
+        <SectionHeader title="Biblioteca Botánica" subtitle="Explora variedades por efecto y tipo." />
+        {error ? <InlineError message={error} /> : null}
         {loading ? (
           <View style={styles.loadingRow}>
             <ActivityIndicator color={colors.pine} />
@@ -159,14 +165,11 @@ export default function CatalogScreen() {
 
         <View style={styles.list}>
           {loading ? (
-            <>
-              <View style={styles.skeleton} />
-              <View style={styles.skeleton} />
-            </>
+            <SkeletonList count={2} height={96} />
           ) : filteredProducts.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>Sin resultados</Text>
-              <Text style={styles.emptyText}>Prueba otro término o cambia la categoría.</Text>
+            <View>
+              <StateCard title="Sin resultados" description="Prueba otro término o cambia la categoría." variant="empty" />
+              <PrimaryEmptyAction label="Limpiar búsqueda" onPress={() => setSearch("")} />
             </View>
           ) : (
             filteredProducts.map((product) => (
@@ -194,10 +197,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 28,
     paddingHorizontal: 16
-  },
-  title: {
-    color: colors.textPrimary,
-    ...typography.title
   },
   search: {
     marginTop: 12,
@@ -245,25 +244,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: colors.textSecondary,
     ...typography.caption
-  },
-  skeleton: {
-    height: 96,
-    borderRadius: 20,
-    backgroundColor: "#EFE7DA",
-    marginBottom: 10
-  },
-  emptyCard: {
-    backgroundColor: "#F7F4EE",
-    borderRadius: 20,
-    padding: 14
-  },
-  emptyTitle: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "600"
-  },
-  emptyText: {
-    marginTop: 4,
-    color: colors.textSecondary
   }
 });

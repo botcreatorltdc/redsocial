@@ -1,6 +1,8 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, Image, Pressable, RefreshControl, SafeAreaView, Text, View } from "react-native";
+import { PrimaryEmptyAction, SectionHeader } from "../../src/components/AppUi";
+import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { supabase } from "../../src/lib/supabase";
 import { colors } from "../../src/theme/colors";
 
@@ -82,9 +84,11 @@ export default function HomeScreen() {
 
   const header = useMemo(
     () => (
-      <View className="mb-6 px-0.5">
-        <Text className="font-serif text-[34px] leading-[42px] text-botanical-primary">Welcome back, {nickname}</Text>
-        <Text className="mt-2 text-[15px] leading-[22px] text-botanical-muted">Discover botanical clubs near you</Text>
+      <View className="px-0.5">
+        <SectionHeader
+          title={`Welcome back, ${nickname}`}
+          subtitle="Discover botanical clubs near you"
+        />
       </View>
     ),
     [nickname]
@@ -123,17 +127,15 @@ export default function HomeScreen() {
         )}
         ListEmptyComponent={
           loading ? (
-            <View className="space-y-3">
-              <View className="h-40 rounded-3xl bg-botanical-cream" />
-              <View className="h-40 rounded-3xl bg-botanical-cream" />
-            </View>
+            <SkeletonList count={2} height={160} />
           ) : (
-            <View
-              className="rounded-[32px] bg-botanical-cream p-5"
-              style={{ shadowColor: "#2D463E", shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 1 }}
-            >
-              <Text className="text-lg font-semibold text-botanical-text">Aun no hay clubes publicados</Text>
-              <Text className="mt-2 text-sm leading-6 text-botanical-muted">Agrega tu primer club desde el panel B2B.</Text>
+            <View>
+              <StateCard
+                title="Aun no hay clubes publicados"
+                description="Agrega tu primer club desde el panel B2B."
+                variant="empty"
+              />
+              <PrimaryEmptyAction label="Actualizar" onPress={onRefresh} />
             </View>
           ) : null
         }
