@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wellness Social Network - Map View</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Noto Serif (h1, h2, h3) and Inter (body, button, labels) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Style Guidance -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f4f3f1",
+                    "inverse-primary": "#b1cdc2",
+                    "surface-container": "#efeeec",
+                    "inverse-on-surface": "#f2f1ef",
+                    "on-tertiary-container": "#afadac",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#2d463e",
+                    "tertiary": "#2b2b2b",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "on-secondary-container": "#745c00",
+                    "on-surface-variant": "#424845",
+                    "inverse-surface": "#2f3130",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#b1cdc2",
+                    "secondary-fixed": "#ffe088",
+                    "surface-tint": "#4a645b",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#faf9f7",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#c2c8c4",
+                    "on-primary-container": "#98b3a9",
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-secondary-fixed": "#241a00",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1b",
+                    "on-primary-fixed-variant": "#334c44",
+                    "surface-variant": "#e3e2e0",
+                    "on-secondary-fixed-variant": "#574500",
+                    "secondary": "#735c00",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#e9e8e6",
+                    "tertiary-container": "#414141",
+                    "on-background": "#1a1c1b",
+                    "primary-fixed": "#cce9dd",
+                    "primary": "#173028",
+                    "outline": "#727975",
+                    "surface-container-highest": "#e3e2e0",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "on-primary-fixed": "#062019",
+                    "secondary-fixed-dim": "#e9c349",
+                    "secondary-container": "#fed65b",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#dbdad8",
+                    "background": "#faf9f7",
+                    "surface": "#faf9f7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "stack-sm": "12px",
+                    "stack-lg": "48px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "margin-desktop": "64px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "h2": ["Noto Serif"],
+                    "h3": ["Noto Serif"],
+                    "button": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h1": ["Noto Serif"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "h2": ["32px", {"lineHeight": "1.3", "fontWeight": "400"}],
+                    "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "button": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Base styles */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Map specific styles for the retro/silver effect using CSS filters on a standard image */
+        .map-texture {
+            filter: grayscale(100%) opacity(80%) contrast(120%) brightness(110%) sepia(10%) hue-rotate(80deg);
+            mix-blend-mode: multiply;
+        }
+
+        /* Map Pin Triangle */
+        .map-pin::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: theme('colors.primary') transparent transparent transparent;
+        }
+
+        /* Hide scrollbar for swipeable list */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="h-screen w-screen overflow-hidden flex font-body-md text-body-md antialiased">
+<!-- Navigation Drawer (Desktop/Tablet) from JSON -->
+<aside class="bg-[#fdfcfb] dark:bg-stone-950 text-[#2D463E] dark:text-stone-100 font-serif text-lg h-screen w-72 border-r border-r border-stone-200 dark:border-stone-800 flat no shadows hidden lg:flex flex-col fixed left-0 top-0 h-full py-8 z-50">
+<!-- Header -->
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container mb-2">
+<img alt="Club Owner Avatar" class="w-full h-full object-cover" data-alt="Portrait of a sophisticated person in a well-lit studio, minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-Q5vpm7NmeF8HmB5qYJ1pGx7G3kh-grIarqXyU2zXJEq4DnSWAzZCxUV4IZ8lrs1_eeqBJX_MgtI6wv0-z1t3W985UsodVJtTAiyGUrM7SU0Im8I34QrpR4JE8LdT4MMeVztihAZEktx3IgyJxCGr5AlwFrWKMXn3XHraKyoiBsSwbsUX4ie2Ppwe55xpWUino-fs34NB4gOf3aI7V5yRGciO2D5QIdHxqfbEsuc9BHjf7QlW3hUKJOFrXPtSBeZ8MqVPMLOYExo"/>
+</div>
+<h2 class="font-serif font-black text-[#2D463E] text-2xl tracking-tight">Botanical B2B</h2>
+<p class="font-sans text-sm text-stone-500">Premium Management</p>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-1 px-4 flex-1">
+<a class="flex items-center gap-4 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg px-4 py-3 hover:pl-2 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-4 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg px-4 py-3 hover:pl-2 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">inventory_2</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-4 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg px-4 py-3 hover:pl-2 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">monitoring</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-4 bg-[#2D463E] text-stone-50 dark:bg-stone-800 rounded-lg mx-2 my-1 px-4 py-3 hover:pl-2 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span>Clubs</span>
+</a>
+<a class="flex items-center gap-4 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg px-4 py-3 hover:pl-2 transition-all duration-200 ease-out mt-auto" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 relative h-full flex flex-col lg:ml-72 bg-surface-container-low">
+<!-- TopAppBar from JSON -->
+<header class="bg-[#fdfcfb]/90 backdrop-blur-lg dark:bg-stone-900/90 text-[#2D463E] dark:text-stone-100 font-serif font-semibold tracking-tight docked full-width top-0 border-b border-stone-200/50 dark:border-stone-800 shadow-[0_4px_20px_rgba(45,70,62,0.03)] flex justify-between items-center w-full px-6 py-4 absolute z-40 transition-opacity duration-300 ease-in-out md:flex">
+<button class="w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity rounded-full lg:hidden">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<!-- Hide brand logo on small screens if drawer is taking over, but keep for top app bar as per json -->
+<h1 class="font-serif text-2xl font-bold text-[#2D463E] dark:text-stone-50">Botanical Club</h1>
+<button class="w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity rounded-full bg-surface-container-low">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+</header>
+<!-- Map Container -->
+<div class="absolute inset-0 top-[72px] md:bottom-0 bottom-[80px] overflow-hidden bg-surface-container-low">
+<!-- Simulated Map Background -->
+<img class="w-full h-full object-cover map-texture absolute inset-0" data-alt="Abstract aerial view of a city landscape treated with a light silver and pale green monochromatic filter to look like a minimalist digital map" data-location="Los Angeles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2t4iqsORHX5KAg3l7yy3V1DE37cr-PIpNtYGggSVpYsfSYEwzy3uENcI8N_x_ltvLfumf4SlTDTVUBUWM5sLRa4kVjHqgoDc2HW8WjRGVjYfSD7hfuSBIk-bU0-g9Gzi7erRRDxc1AK-jE0cPl0O9dwag8L8SOMwys-rPH_jSHlGJALDfGli_zDYWAB2UVHu0Jdz3t0gfvUvbM1XbV0PfR7wCrt-x295pq4kgyeXvVtIAo7cg0EwTEJ1XE4fIRhaHQx-W6t5vsGg"/>
+<!-- Map Vignette for ambient depth -->
+<div class="absolute inset-0 shadow-[inset_0_0_100px_rgba(250,249,247,0.8)] pointer-events-none"></div>
+<!-- Floating Search Button -->
+<button class="absolute top-stack-md left-1/2 -translate-x-1/2 z-20 bg-surface/90 backdrop-blur-md text-primary px-6 py-3 rounded-full shadow-[0_10px_30px_rgba(45,70,62,0.1)] border border-surface-variant flex items-center gap-2 hover:bg-surface transition-colors font-button text-button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                Search this area
+            </button>
+<!-- Custom Map Markers -->
+<!-- Marker 1 -->
+<div class="absolute top-[30%] left-[25%] z-10 flex flex-col items-center group cursor-pointer hover:-translate-y-1 transition-transform">
+<div class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-2 border-surface map-pin relative">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<span class="mt-2 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded shadow-sm font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">The Greenhouse</span>
+</div>
+<!-- Marker 2 (Active/Highlighted) -->
+<div class="absolute top-[45%] left-[55%] z-10 flex flex-col items-center cursor-pointer scale-110">
+<div class="w-14 h-14 bg-surface text-primary rounded-full flex items-center justify-center shadow-xl border-2 border-primary map-pin relative overflow-hidden p-1">
+<div class="w-full h-full bg-surface-container rounded-full flex items-center justify-center overflow-hidden">
+<img alt="Club Logo" class="w-full h-full object-cover" data-alt="Close up of a dark green monstera leaf on a pale background, used as a logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbZdcJ2ctsbb1r9gfKFDUmrJoRvYuV6L7S6TIcI4pdH5RG3nyHwwiuUcxBLTWFC4k4JM-sQYQnIS1tcP2e4v9-3UdQ0d4-xQFLc3CaRyrqr02TyGCQ_2Q3MfCAdT2tmtNsAT0rAs0n01JLjcj00KHKonaRrE1HldsjsgbA14SrfqBBXyMsam9mx0fECiEvkFbOynDbMZp8oKl391iEFIyH0mHLlYxkBfm0-P5xco1aHXmiqgmB6qkltsepJaQ5xNMEZYuMII1GEVE"/>
+</div>
+</div>
+<span class="mt-2 bg-primary text-on-primary px-3 py-1.5 rounded-md shadow-md font-label-caps text-label-caps whitespace-nowrap">Monstera Lounge</span>
+</div>
+<!-- Marker 3 -->
+<div class="absolute top-[65%] left-[30%] z-10 flex flex-col items-center group cursor-pointer hover:-translate-y-1 transition-transform">
+<div class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-2 border-surface map-pin relative">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">potted_plant</span>
+</div>
+<span class="mt-2 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded shadow-sm font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">Urban Oasis</span>
+</div>
+<!-- Horizontal Swipeable List (Preview Cards) -->
+<div class="absolute bottom-6 left-0 w-full overflow-x-auto snap-x hide-scrollbar flex gap-4 px-6 pb-2 z-20 pt-4">
+<!-- Card 1 (Active/Nearest) -->
+<article class="min-w-[300px] w-[300px] bg-surface rounded-2xl shadow-[0_10px_30px_rgba(45,70,62,0.1)] snap-center flex flex-col overflow-hidden border border-surface-variant relative cursor-pointer hover:shadow-[0_15px_40px_rgba(45,70,62,0.15)] transition-shadow">
+<div class="h-32 w-full relative">
+<img alt="Monstera Lounge" class="w-full h-full object-cover" data-alt="High end modern minimalist lounge with natural sunlight, plush cream seating, and large potted tropical plants" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhvZQZZgv8qSs9_mYbJShQ-vGwdCk7cON1F0p0VPv4nHQCNFQSNHsBnN3oaDfooBQlNPHURKjty2Nb_T2Bh264NEMNK78LDo2pmVODRNwWO73hyoszx02ydK1Xm4SaVXGNawrpRG_wcyz8qZfiD9xLL__944IVIojJ4_SwFrdVY4P9z0vJuecZJ1puX4HZ4ofM7Vt7ToEzGkskmbuU6kdHGOpxf8u149dsdY7rD-OCDguSw62Dkjeh762V027A_kn7rzcV5eaQiLs"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 font-label-caps text-label-caps text-primary shadow-sm">
+<span class="material-symbols-outlined text-[14px]">near_me</span>
+                            0.2 mi
+                        </div>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-h3 text-h3 text-on-surface">Monstera Lounge</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">star</span>
+                            4.9 (120 reviews)
+                        </p>
+<div class="flex gap-2 mt-2">
+<span class="bg-surface-container-low text-on-surface-variant px-2 py-1 rounded-full font-label-caps text-[10px]">RELAXATION</span>
+<span class="bg-surface-container-low text-on-surface-variant px-2 py-1 rounded-full font-label-caps text-[10px]">SOCIAL</span>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="min-w-[300px] w-[300px] bg-surface/80 backdrop-blur-md rounded-2xl shadow-sm snap-center flex flex-col overflow-hidden border border-surface-variant relative cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative">
+<img alt="The Greenhouse" class="w-full h-full object-cover opacity-90" data-alt="Interior of a luxury glass greenhouse with hanging ferns, wooden structural elements, and warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJAjdppQaxyom4qdLRMFp-fTBID_SQiQ0TlTY81CEMLuDOr3D8WDo9UhoxuIqVdeu8UmJ-D_VkBXj-kh4HMxScgTeA0MkHMYwNaj_aWu4YhWhrLNL0V7oIkA-NNdwH8FUWXhh29nfCRW2ZcHbgFYKkCMXjKJ5eUxoGQGT9OwJoTRQ5hsFHO2lWPkH2BHnCpzGR7v9xTR3IunOjoQ1UAIfjSC4sN_tQjoSvqYgUFrOt22naj3U9rGoFxP78SwZ6Y0ez_gEYxsG0g94"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 font-label-caps text-label-caps text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                            0.8 mi
+                        </div>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-h3 text-h3 text-on-surface">The Greenhouse</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">star</span>
+                            4.7 (85 reviews)
+                        </p>
+<div class="flex gap-2 mt-2">
+<span class="bg-surface-container-low text-on-surface-variant px-2 py-1 rounded-full font-label-caps text-[10px]">BOTANICAL</span>
+</div>
+</div>
+</article>
+<!-- Spacer for end of scroll -->
+<div class="min-w-[24px]"></div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar from JSON (Mobile Only) -->
+<nav class="bg-[#fdfcfb] dark:bg-stone-900 text-[#2D463E] dark:text-stone-100 font-sans text-[11px] font-medium tracking-wide uppercase fixed bottom-0 w-full rounded-t-2xl z-50 border-t border-stone-100 dark:border-stone-800 shadow-[0_-10px_30px_rgba(45,70,62,0.05)] fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe md:hidden">
+<!-- Explore (Inactive) -->
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90 transition-transform duration-300 ease-in-out w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span>Explore</span>
+</a>
+<!-- Map (Active) -->
+<a class="flex flex-col items-center justify-center text-[#2D463E] dark:text-stone-50 bg-stone-100 dark:bg-stone-800 rounded-full px-4 py-1 hover:text-[#2D463E] transition-colors scale-95 active:scale-90 transition-transform duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">map</span>
+<span>Map</span>
+</a>
+<!-- Clubs (Inactive) -->
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90 transition-transform duration-300 ease-in-out w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">potted_plant</span>
+<span>Clubs</span>
+</a>
+<!-- Profile (Inactive) -->
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90 transition-transform duration-300 ease-in-out w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span>Profile</span>
+</a>
+</nav>
+</body></html>

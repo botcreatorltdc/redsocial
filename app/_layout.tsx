@@ -2,6 +2,7 @@ import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { supabase } from "../src/lib/supabase";
+import "../global.css";
 
 export default function RootLayout() {
   const segments = useSegments();

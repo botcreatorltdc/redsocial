@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botanical Club - Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f4f3f1",
+                        "inverse-primary": "#b1cdc2",
+                        "surface-container": "#efeeec",
+                        "inverse-on-surface": "#f2f1ef",
+                        "on-tertiary-container": "#afadac",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#2d463e",
+                        "tertiary": "#2b2b2b",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-secondary-container": "#745c00",
+                        "on-surface-variant": "#424845",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b1cdc2",
+                        "secondary-fixed": "#ffe088",
+                        "surface-tint": "#4a645b",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf9f7",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c2c8c4",
+                        "on-primary-container": "#98b3a9",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1b",
+                        "on-primary-fixed-variant": "#334c44",
+                        "surface-variant": "#e3e2e0",
+                        "on-secondary-fixed-variant": "#574500",
+                        "secondary": "#735c00",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e9e8e6",
+                        "tertiary-container": "#414141",
+                        "on-background": "#1a1c1b",
+                        "primary-fixed": "#cce9dd",
+                        "primary": "#173028",
+                        "outline": "#727975",
+                        "surface-container-highest": "#e3e2e0",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "on-primary-fixed": "#062019",
+                        "secondary-fixed-dim": "#e9c349",
+                        "secondary-container": "#fed65b",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#dbdad8",
+                        "background": "#faf9f7",
+                        "surface": "#faf9f7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "stack-sm": "12px",
+                        "stack-lg": "48px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "margin-desktop": "64px",
+                        "stack-md": "24px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Noto Serif"],
+                        "h3": ["Noto Serif"],
+                        "button": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h1": ["Noto Serif"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h2": ["32px", {"lineHeight": "1.3", "fontWeight": "400"}],
+                        "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "button": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h1": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #faf9f7; }
+        /* Hide scrollbar for clean look in drawer */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased flex h-screen overflow-hidden">
+<!-- NavigationDrawer (Shared Component) -->
+<aside class="bg-[#fdfcfb] dark:bg-stone-950 text-[#2D463E] dark:text-stone-100 font-serif text-lg h-screen w-72 border-r border-r border-stone-200 dark:border-stone-800 flat no shadows hidden lg:flex flex-col fixed left-0 top-0 h-full py-8 z-40">
+<!-- Header Profile Area -->
+<div class="px-6 mb-8 flex items-center gap-4">
+<img alt="Club Owner Avatar" class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="Professional headshot of a person in a serene botanical setting, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfIO3_eoGfYymIASTguJlHyDEvTKvMmbj1otgLlJ6EoGaJfttmB-0blxL14FDqR7JWkgvUKc6Ffjgn9mCpCmsg9GjJw7SrRCwstX6XYI7gLjgCdrIQA8PTjlPmRCfwsKUXvtOpuxyyRDSqtWNh01qjoFvNcJqSQwiyhbch6eW1eoHjGKdSsUWs4f665Z7HAgOJ-_7z-sSNp2J-vM8ODvXbuhN-U-lYH8YR8IpwhW4-EFPyY5b2WqG_PI9JCy7JnwUMusDcm03CMLw"/>
+<div>
+<h2 class="font-serif font-black text-[#2D463E] text-[18px] leading-tight">Botanical B2B</h2>
+<p class="font-body-md text-[14px] text-on-surface-variant">Premium Management</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col gap-1 px-4 overflow-y-auto no-scrollbar">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-[#2D463E] transition-colors">dashboard</span>
+<span class="font-button text-button">Dashboard</span>
+</a>
+<!-- Inventory (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-[#2D463E] text-stone-50 dark:bg-stone-800 rounded-lg mx-2 my-1 hover:pl-2 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-button text-button">Inventory</span>
+</a>
+<!-- Analytics (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-[#2D463E] transition-colors">monitoring</span>
+<span class="font-button text-button">Analytics</span>
+</a>
+<!-- Clubs (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-[#2D463E] transition-colors">groups</span>
+<span class="font-button text-button">Clubs</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-[#2D463E] transition-colors">settings</span>
+<span class="font-button text-button">Settings</span>
+</a>
+</nav>
+<!-- Bottom Action -->
+<div class="px-6 mt-auto">
+<button class="w-full py-3 flex items-center justify-center gap-2 text-on-surface-variant font-button text-button border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                Sign Out
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-72 flex flex-col h-full bg-surface">
+<!-- Top Header -->
+<header class="px-gutter py-stack-md flex justify-between items-center border-b border-outline-variant/30 bg-surface/80 backdrop-blur-md sticky top-0 z-30">
+<div>
+<h1 class="font-h2 text-h2 text-on-surface">Inventory Management</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Manage your club's botanical offerings and stock levels.</p>
+</div>
+<button class="bg-secondary-container text-on-secondary-container font-button text-button px-6 py-3 rounded-full flex items-center gap-2 hover:bg-secondary-fixed transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Add New Variety
+            </button>
+</header>
+<!-- Content Canvas -->
+<div class="flex-1 overflow-y-auto p-gutter no-scrollbar">
+<!-- Filter & Search Bar (High-end utility) -->
+<div class="flex gap-4 mb-stack-md">
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-lowest border border-outline-variant/50 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-surface placeholder:text-outline" placeholder="Search inventory..." type="text"/>
+</div>
+<button class="px-4 py-3 border border-outline-variant/50 bg-surface-container-lowest rounded-lg flex items-center gap-2 text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="font-button text-button">Filter</span>
+</button>
+</div>
+<!-- Inventory Table (Bento List Pattern) -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-[0_4px_20px_rgba(45,70,62,0.03)] overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-[80px_2.5fr_1.5fr_1.5fr_1fr_100px] gap-4 px-6 py-4 bg-surface-container-low border-b border-outline-variant/40 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
+<div>Image</div>
+<div>Variety Name</div>
+<div>Category</div>
+<div>THC / CBD %</div>
+<div>Price</div>
+<div class="text-right">Status</div>
+</div>
+<!-- Table Body -->
+<div class="flex flex-col">
+<!-- Item 1: Sativa -->
+<div class="grid grid-cols-[80px_2.5fr_1.5fr_1.5fr_1fr_100px] gap-4 px-6 py-4 items-center border-b border-outline-variant/20 hover:bg-surface-container-low/30 transition-colors group">
+<img alt="Blue Dream" class="w-14 h-14 rounded-lg object-cover border border-outline-variant/30 group-hover:shadow-sm transition-shadow" data-alt="Close up studio shot of a vibrant light green herbal flower bud with orange hairs, clean minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-TIFavsOOj2QsEfP4xFaFwfS4hAw3W_nlweCSM6_qJZI2qKfStOTUA8Gsoyi9P_GGxGlsW28_IrZJ-dcOpdBpo3jS8fX9txZ_QZzWR2xfaPEqo1ZquttpFl_7olYkCOXGaxwM5-qKkiIqwPmRwHsgoMkuyE78gDNlqdkYb8N7slXCbaravuxE1WRwjEk99Xv8lsQnpeFK0E8cYU1b6KCL8dZ1rPk4_SzHHIwVlxqwn6o6l_yjxizpB5NPiRwFjBkcgavohemGlSU"/>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface font-medium">Blue Dream</div>
+<div class="font-body-md text-[13px] text-on-surface-variant mt-0.5">ID: #BD-092</div>
+</div>
+<div>
+<span class="bg-primary-fixed text-on-primary-fixed font-label-caps text-[10px] px-3 py-1.5 rounded-full inline-block">SATIVA</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">22% / &lt;0.5%</div>
+<div class="font-body-md text-body-md text-on-surface font-medium">€45 <span class="text-[13px] text-on-surface-variant font-normal">/ 3.5g</span></div>
+<div class="flex justify-end">
+<!-- Toggle Switch ON -->
+<button aria-label="Toggle In Stock" class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors shadow-inner">
+<span class="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+</div>
+<!-- Item 2: Indica (Out of stock) -->
+<div class="grid grid-cols-[80px_2.5fr_1.5fr_1.5fr_1fr_100px] gap-4 px-6 py-4 items-center border-b border-outline-variant/20 hover:bg-surface-container-low/30 transition-colors group opacity-75">
+<img alt="Northern Lights" class="w-14 h-14 rounded-lg object-cover border border-outline-variant/30 grayscale-[30%]" data-alt="Dense purple and dark green botanical bud covered in sparkling frost, moody dramatic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwrKy6L2QlPVtEFX2dbe0_o91RHrYY9v14AuvgvsdEBAjOw5yPpxUZ0UsFb6GxWM-1kcqDryN7KYHr6fOIK1ZxjxpcwQuosTVb9RWdW3yIjt0qTRN0mjF-tnK4FQssZKTnjEVJHYtXGZXR1VLBbbYRIK27qKRAjn3ZAM3vj7oSX72_0D8n92cXnDXbIOW6OwIigzxG3RyJMbDIzOPi26I4zCGb0bAWaARE6-4zYhoyrdBWl1ZHvvTm0yIDVz17Nbpzu33q8JJCYRw"/>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface font-medium">Northern Lights</div>
+<div class="font-body-md text-[13px] text-on-surface-variant mt-0.5">ID: #NL-104</div>
+</div>
+<div>
+<span class="bg-surface-tint/10 text-surface-tint font-label-caps text-[10px] px-3 py-1.5 rounded-full inline-block">INDICA</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">19% / 1.2%</div>
+<div class="font-body-md text-body-md text-on-surface font-medium">€40 <span class="text-[13px] text-on-surface-variant font-normal">/ 3.5g</span></div>
+<div class="flex justify-end">
+<!-- Toggle Switch OFF -->
+<button aria-label="Toggle Out of Stock" class="w-11 h-6 bg-surface-variant rounded-full relative cursor-pointer transition-colors border border-outline-variant/50">
+<span class="absolute left-1 top-1 w-4 h-4 bg-outline rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+</div>
+<!-- Item 3: Hybrid -->
+<div class="grid grid-cols-[80px_2.5fr_1.5fr_1.5fr_1fr_100px] gap-4 px-6 py-4 items-center border-b border-outline-variant/20 hover:bg-surface-container-low/30 transition-colors group">
+<img alt="Girl Scout Cookies" class="w-14 h-14 rounded-lg object-cover border border-outline-variant/30 group-hover:shadow-sm transition-shadow" data-alt="Macro shot of textured green botanical flower with amber trichomes, soft beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsmgLAoI2AoE9LJfI51F4T_rDoBfuGjbeelKE8u8ikrbk1456rwwHX8PcsEnTZBk5LN_UwndZuxBx8lTvdE-F7Mvw-KZSBqicXC1jISxDfArNqLI0FqYVviZRs8_TT5zaYjDWASkBWyWu_vzv5m4ZC4y3fm8tFGIDuj2WSZF69-cdMkZ98YcQ6PQi2gW3NlZNloUMRN4PnPzO1oJ-pU58sb_4WdderwEKkMjhNzjqvKeXaoTokvzhQ-krVHI8P0hE7402v1W0LUEA"/>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface font-medium">GSC Reserve</div>
+<div class="font-body-md text-[13px] text-on-surface-variant mt-0.5">ID: #GS-022</div>
+</div>
+<div>
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-[10px] px-3 py-1.5 rounded-full inline-block">HYBRID</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">24% / &lt;0.1%</div>
+<div class="font-body-md text-body-md text-on-surface font-medium">€55 <span class="text-[13px] text-on-surface-variant font-normal">/ 3.5g</span></div>
+<div class="flex justify-end">
+<!-- Toggle Switch ON -->
+<button aria-label="Toggle In Stock" class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors shadow-inner">
+<span class="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+</div>
+<!-- Item 4: CBD -->
+<div class="grid grid-cols-[80px_2.5fr_1.5fr_1.5fr_1fr_100px] gap-4 px-6 py-4 items-center hover:bg-surface-container-low/30 transition-colors group">
+<img alt="Charlotte's Web" class="w-14 h-14 rounded-lg object-cover border border-outline-variant/30 group-hover:shadow-sm transition-shadow" data-alt="Earthy green herbal bud clustered on a delicate stem, natural soft daylight, clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-hhkpv_nQlDncOOmQmxX0m6AJU3xc1KhYU1YHBOfxEEWYYj8BDVJXKFSXn9nOeczeiO03OJ7gor7Jx-wNBAdGR-_3Yvkkd50Pw09VprL-PF4m8fcLfhiQFH0lWyY32O6H1qET2LBbMqQgPnwJeXaoGQ3XoC6Sbtbj-XnaiBFwgMMICfV2wJ7r9V71G9nqEZWp2sKRSX2DNBBnGhHehvp02Xgx3DBDcL1yL-OcgwnEoBXFf5wIl4dQYlef18cX6NwI11c4YsojS2o"/>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface font-medium">Charlotte's Web</div>
+<div class="font-body-md text-[13px] text-on-surface-variant mt-0.5">ID: #CW-771</div>
+</div>
+<div>
+<span class="bg-inverse-primary text-on-primary-fixed-variant font-label-caps text-[10px] px-3 py-1.5 rounded-full inline-block">CBD</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">&lt;0.3% / 18%</div>
+<div class="font-body-md text-body-md text-on-surface font-medium">€35 <span class="text-[13px] text-on-surface-variant font-normal">/ 3.5g</span></div>
+<div class="flex justify-end">
+<!-- Toggle Switch ON -->
+<button aria-label="Toggle In Stock" class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors shadow-inner">
+<span class="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination (Subtle) -->
+<div class="mt-stack-sm flex justify-between items-center px-4">
+<p class="font-body-md text-[13px] text-on-surface-variant">Showing 4 of 24 varieties</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/50 text-outline hover:bg-surface-container-low transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/50 text-on-surface hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

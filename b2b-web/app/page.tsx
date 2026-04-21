@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -31,95 +31,48 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={styles.main}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h1 style={styles.title}>Portal B2B</h1>
-        <p style={styles.subtitle}>Inicia sesión para continuar</p>
+    <main className="grid min-h-screen place-items-center bg-botanical-bg p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="grid w-full max-w-md gap-4 rounded-3xl border border-botanical-line bg-white p-8 shadow-botanical"
+      >
+        <h1 className="font-serif text-4xl text-botanical-primary">Botanical Club</h1>
+        <p className="text-sm text-botanical-muted">Inicia sesión para continuar</p>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Email
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 text-sm outline-none focus:border-botanical-primary"
             placeholder="club@correo.com"
           />
         </label>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Contraseña
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 text-sm outline-none focus:border-botanical-primary"
             placeholder="********"
           />
         </label>
 
-        {error ? <p style={styles.error}>{error}</p> : null}
+        {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
-        <button type="submit" disabled={loading} style={styles.button}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-full bg-botanical-primary px-5 py-3 text-sm font-medium tracking-[0.06em] text-white"
+        >
           {loading ? "Iniciando..." : "Entrar"}
         </button>
       </form>
     </main>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  main: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    background: "#F7F6F2",
-    padding: "24px"
-  },
-  form: {
-    width: "100%",
-    maxWidth: "420px",
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "16px",
-    padding: "24px",
-    display: "grid",
-    gap: "14px"
-  },
-  title: {
-    margin: 0,
-    color: "#24312C"
-  },
-  subtitle: {
-    margin: 0,
-    color: "#60706A"
-  },
-  label: {
-    display: "grid",
-    gap: "6px",
-    color: "#24312C",
-    fontSize: "14px"
-  },
-  input: {
-    border: "1px solid #DFE8E2",
-    borderRadius: "12px",
-    padding: "10px 12px",
-    fontSize: "14px"
-  },
-  error: {
-    margin: 0,
-    color: "#D14343",
-    fontSize: "14px"
-  },
-  button: {
-    border: "none",
-    borderRadius: "12px",
-    background: "#2F5D50",
-    color: "#FFFFFF",
-    padding: "12px 14px",
-    fontWeight: 600,
-    cursor: "pointer"
-  }
-};

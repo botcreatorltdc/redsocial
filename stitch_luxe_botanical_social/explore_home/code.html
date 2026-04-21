@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botanical Club - Explore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f4f3f1",
+                        "inverse-primary": "#b1cdc2",
+                        "surface-container": "#efeeec",
+                        "inverse-on-surface": "#f2f1ef",
+                        "on-tertiary-container": "#afadac",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#2d463e",
+                        "tertiary": "#2b2b2b",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-secondary-container": "#745c00",
+                        "on-surface-variant": "#424845",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b1cdc2",
+                        "secondary-fixed": "#ffe088",
+                        "surface-tint": "#4a645b",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf9f7",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c2c8c4",
+                        "on-primary-container": "#98b3a9",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1b",
+                        "on-primary-fixed-variant": "#334c44",
+                        "surface-variant": "#e3e2e0",
+                        "on-secondary-fixed-variant": "#574500",
+                        "secondary": "#735c00",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e9e8e6",
+                        "tertiary-container": "#414141",
+                        "on-background": "#1a1c1b",
+                        "primary-fixed": "#cce9dd",
+                        "primary": "#173028",
+                        "outline": "#727975",
+                        "surface-container-highest": "#e3e2e0",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "on-primary-fixed": "#062019",
+                        "secondary-fixed-dim": "#e9c349",
+                        "secondary-container": "#fed65b",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#dbdad8",
+                        "background": "#faf9f7",
+                        "surface": "#faf9f7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "stack-sm": "12px",
+                        "stack-lg": "48px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "margin-desktop": "64px",
+                        "stack-md": "24px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Noto Serif"],
+                        "h3": ["Noto Serif"],
+                        "button": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h1": ["Noto Serif"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h2": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
+                        "h3": ["24px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased pb-24 md:pb-0 md:pl-72 flex flex-col min-h-screen">
+<!-- TopAppBar (Web & Mobile) -->
+<header class="fixed top-0 z-40 w-full md:w-[calc(100%-18rem)] md:left-72 bg-[#fdfcfb]/90 backdrop-blur-lg dark:bg-stone-900/90 shadow-[0_4px_20px_rgba(45,70,62,0.03)] transition-all duration-300 ease-in-out border-b border-stone-200/50 dark:border-stone-800 flex justify-between items-center px-6 py-4">
+<button class="text-[#2D463E] dark:text-stone-100 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-serif text-2xl font-bold text-[#2D463E] dark:text-stone-50 tracking-tight">Botanical Club</h1>
+<button class="text-[#2D463E] dark:text-stone-100 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+</header>
+<!-- Navigation Drawer (Desktop Only) -->
+<nav class="hidden md:flex flex-col fixed left-0 top-0 h-full py-8 w-72 border-r border-stone-200 dark:border-stone-800 bg-[#fdfcfb] dark:bg-stone-950 z-50 overflow-y-auto">
+<div class="px-6 mb-8 flex items-center gap-4">
+<img alt="Club Owner Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a person with natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgH4HHe826OqSvPpjuvTscUoLQMk1dQWaQGkX5ktajGyzZq46AWeYx2HRncbiYbgQ2F9tS7YfHjM1g8-A_hhBA8qEIi0axd3hluuMp9itIS8Tag7llLUgTbItN7kzy7Xu-F_DeCz4BCm9F4KIcUX8QlQab0w2KQgLcGO45RoZBjeJzM4M_5BMQzJ3y2qyf9IYVrjE83ncw7ZSzT_zRauC1ixhEwcKkCaZnC8GJzVv9YThoQQPjWjxE95iZFIRK7sfJo5dUylIfdJg"/>
+<div>
+<h2 class="font-serif font-black text-[#2D463E] text-lg leading-tight">Botanical B2B</h2>
+<p class="font-body-md text-body-md text-stone-500 text-sm">Premium Management</p>
+</div>
+</div>
+<div class="flex-1 px-4 space-y-1">
+<!-- Not an active dashboard view according to intent -->
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out font-serif text-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out font-serif text-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out font-serif text-lg" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#2D463E] text-stone-50 dark:bg-stone-800 rounded-lg mx-2 my-1 transition-all duration-200 ease-out font-serif text-lg" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Clubs
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 mx-2 my-1 rounded-lg hover:pl-2 transition-all duration-200 ease-out font-serif text-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-24 md:pt-32 pb-stack-lg">
+<!-- Filter Chips Section -->
+<section class="mb-stack-md overflow-x-auto no-scrollbar pb-2">
+<div class="flex gap-3">
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-primary-container text-on-primary font-label-caps text-label-caps uppercase tracking-wide transition-opacity hover:opacity-90">Sativa</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wide transition-opacity hover:bg-surface-dim">Indica</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wide transition-opacity hover:bg-surface-dim">CBD</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wide transition-opacity hover:bg-surface-dim">Terrace</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wide transition-opacity hover:bg-surface-dim">Coworking</button>
+</div>
+</section>
+<!-- Feed Section -->
+<section class="flex flex-col gap-stack-lg">
+<!-- Card 1 -->
+<article class="flex flex-col gap-unit group cursor-pointer">
+<div class="relative w-full aspect-[4/5] md:aspect-square overflow-hidden rounded-[16px] bg-surface-container shadow-[0_10px_30px_rgba(45,70,62,0.05)] transition-shadow duration-300 group-hover:shadow-[0_15px_40px_rgba(45,70,62,0.1)]">
+<img alt="The Greenhouse Club" class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" data-alt="High-end modern botanical lounge interior with lush green plants, warm lighting, and comfortable seating" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzaBsnb2k33BRWN9fK67YppLXRHvfssFh_p_M46GfsYdwiA74uWD1tcMcr6V6sUJGgMQ_YaTkvOk7Xpjswd0UVNTZku_XKCXoYHxksAfT1TwiJK69xvgCRg1rRTxWq3Ci89wQpLiFMUcg3TSYNuQ7fRlpNzU-hxSHVAGPZV7oJqWKkIIGmQf-O0t1TEtE7i-ZFCM2T_vVdbjapTceTCNfiDScObNz-Yq3C6hgNMBvC5L6-BMDlfPjZeBqbLcz3fLG_uJonOV_-84w"/>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-bright/80 backdrop-blur-md text-primary font-label-caps text-[10px] uppercase shadow-sm">Terrace</span>
+</div>
+</div>
+<div class="px-2 pt-2 flex justify-between items-start">
+<div>
+<h3 class="font-h3 text-h3 text-on-background font-semibold mb-1">The Greenhouse</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">location_on</span>
+                            Eixample, Barcelona
+                        </p>
+</div>
+<button class="text-primary hover:opacity-70 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">bookmark_border</span>
+</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="flex flex-col gap-unit group cursor-pointer">
+<div class="relative w-full aspect-[4/5] md:aspect-square overflow-hidden rounded-[16px] bg-surface-container shadow-[0_10px_30px_rgba(45,70,62,0.05)] transition-shadow duration-300 group-hover:shadow-[0_15px_40px_rgba(45,70,62,0.1)]">
+<img alt="Oasis Coworking" class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" data-alt="Minimalist modern luxury coworking space with natural light, concrete textures, and subtle greenery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQN8l3yVH4uf1BzUAu5LmCF_9Yxjc6ObwRjAY5SBAobGbGP-Z7HZ2K1aZkAiAWJsAhNwBY8JYdkf3ZOyYpFWJrzIoanydD-K-4-5LY3URnAH7MPrJ7Er0B7tXp5A3snygXe18SqIOjIE_HI4UiZZQlnLYq4g6b4Cr_1lNIeSlmUnSjVxvoVoOrO5gI-CXXS53_zvfXl15fvzvV43X1iPcXbl53cHFKXxrB22TunLJxvczsnKV3DDRKOue3JsgmY_oiIwBca0pP-d4"/>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-bright/80 backdrop-blur-md text-primary font-label-caps text-[10px] uppercase shadow-sm">Coworking</span>
+</div>
+</div>
+<div class="px-2 pt-2 flex justify-between items-start">
+<div>
+<h3 class="font-h3 text-h3 text-on-background font-semibold mb-1">Oasis Collective</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">location_on</span>
+                            Gràcia, Barcelona
+                        </p>
+</div>
+<button class="text-primary hover:opacity-70 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">bookmark_border</span>
+</button>
+</div>
+</article>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe bg-[#fdfcfb] dark:bg-stone-900 border-t border-stone-100 dark:border-stone-800 rounded-t-2xl z-50 shadow-[0_-10px_30px_rgba(45,70,62,0.05)]">
+<!-- Active Tab: Explore -->
+<a class="flex flex-col items-center justify-center text-[#2D463E] dark:text-stone-50 bg-stone-100 dark:bg-stone-800 rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-sans text-[11px] font-medium tracking-wide uppercase">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">map</span>
+<span class="font-sans text-[11px] font-medium tracking-wide uppercase">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">potted_plant</span>
+<span class="font-sans text-[11px] font-medium tracking-wide uppercase">Clubs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 hover:text-[#2D463E] transition-colors scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-sans text-[11px] font-medium tracking-wide uppercase">Profile</span>
+</a>
+</nav>
+</body></html>

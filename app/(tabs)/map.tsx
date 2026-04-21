@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { ClubMapCard } from "../../src/features/map/components/ClubMapCard";
 import { supabase } from "../../src/lib/supabase";
-import { colors } from "../../src/theme/colors";
 
 type ClubMapItem = {
   id: string;
@@ -47,7 +46,8 @@ export default function MapScreen() {
         return;
       }
 
-      const mapped: ClubMapItem[] = data
+      const rows = (data as any[]) ?? [];
+      const mapped: ClubMapItem[] = rows
         .filter((club) => typeof club.lat === "number" && typeof club.lng === "number")
         .map((club) => ({
           id: club.id,
@@ -64,40 +64,35 @@ export default function MapScreen() {
     void loadClubs();
   }, []);
 
-  const selectedClub = useMemo(
-    () => clubs.find((club) => club.id === selectedClubId) ?? null,
-    [clubs, selectedClubId]
-  );
+  const selectedClub = useMemo(() => clubs.find((club) => club.id === selectedClubId) ?? null, [clubs, selectedClubId]);
 
   if (Platform.OS === "web") {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 bg-botanical-bg">
         {loading ? (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator color={colors.pine} />
-            <Text style={styles.loadingText}>Cargando clubes...</Text>
+          <View className="absolute top-6 z-10 self-center rounded-full border border-botanical-line bg-white px-3.5 py-2">
+            <View className="flex-row items-center">
+              <ActivityIndicator color="#2D463E" />
+              <Text className="ml-2 text-botanical-muted">Cargando clubes...</Text>
+            </View>
           </View>
         ) : null}
 
-        <View style={styles.webPlaceholder}>
-          <Text style={styles.webMessage}>
-            El mapa está disponible solo en dispositivos móviles. Aquí se mostraría la lista de
-            clubes.
-          </Text>
-
+        <View className="flex-1 px-4 pt-20">
+          <Text className="mb-3 text-botanical-primary">Selecciona un club para ver la ficha inferior de descubrimiento.</Text>
           {clubs.map((club) => (
             <Pressable
               key={club.id}
-              style={styles.webClubItem}
+              className="mb-2 rounded-[20px] border border-botanical-line bg-white px-3.5 py-3"
               onPress={() => setSelectedClubId(club.id)}
             >
-              <Text style={styles.webClubText}>{club.name}</Text>
+              <Text className="text-botanical-muted">{club.name}</Text>
             </Pressable>
           ))}
         </View>
 
         {selectedClub ? (
-          <View style={styles.bottomSheet}>
+          <View className="absolute bottom-0 left-0 right-0">
             <ClubMapCard
               clubName={selectedClub.name}
               distanceKm={calculateMockDistanceKm(selectedClub.latitude, selectedClub.longitude)}
@@ -115,11 +110,13 @@ export default function MapScreen() {
   const Marker = mapsModule.Marker;
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-botanical-bg">
       {loading ? (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator color={colors.pine} />
-          <Text style={styles.loadingText}>Cargando clubes...</Text>
+        <View className="absolute top-6 z-10 self-center rounded-full border border-botanical-line bg-white px-3.5 py-2">
+          <View className="flex-row items-center">
+            <ActivityIndicator color="#2D463E" />
+            <Text className="ml-2 text-botanical-muted">Cargando clubes...</Text>
+          </View>
         </View>
       ) : null}
 
@@ -127,19 +124,16 @@ export default function MapScreen() {
         {clubs.map((club) => (
           <Marker
             key={club.id}
-            coordinate={{
-              latitude: club.latitude,
-              longitude: club.longitude
-            }}
+            coordinate={{ latitude: club.latitude, longitude: club.longitude }}
             title={club.name}
-            pinColor={colors.sage}
+            pinColor="#2D463E"
             onPress={() => setSelectedClubId(club.id)}
           />
         ))}
       </MapView>
 
       {selectedClub ? (
-        <View style={styles.bottomSheet}>
+        <View className="absolute bottom-0 left-0 right-0">
           <ClubMapCard
             clubName={selectedClub.name}
             distanceKm={calculateMockDistanceKm(selectedClub.latitude, selectedClub.longitude)}
@@ -153,56 +147,7 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background
-  },
   map: {
     ...StyleSheet.absoluteFillObject
-  },
-  bottomSheet: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0
-  },
-  loadingOverlay: {
-    position: "absolute",
-    top: 24,
-    alignSelf: "center",
-    zIndex: 10,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  loadingText: {
-    marginLeft: 8,
-    color: colors.textSecondary
-  },
-  webPlaceholder: {
-    flex: 1,
-    paddingTop: 80,
-    paddingHorizontal: 16
-  },
-  webMessage: {
-    color: colors.textPrimary,
-    marginBottom: 12
-  },
-  webClubItem: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginBottom: 8
-  },
-  webClubText: {
-    color: colors.textSecondary
   }
 });

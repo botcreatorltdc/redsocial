@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -43,94 +43,46 @@ export default function DashboardOnboardingPage() {
   };
 
   return (
-    <main style={styles.main}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h1 style={styles.title}>Crear Club</h1>
-        <p style={styles.subtitle}>Completa los datos iniciales de tu espacio.</p>
+    <main className="grid min-h-[70vh] place-items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="grid w-full max-w-xl gap-4 rounded-3xl border border-botanical-line bg-white p-8 shadow-botanical"
+      >
+        <h1 className="font-serif text-4xl text-botanical-primary">Crear Club</h1>
+        <p className="text-sm text-botanical-muted">Completa los datos iniciales de tu espacio.</p>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Nombre del Club
           <input
             value={clubName}
             onChange={(e) => setClubName(e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
             placeholder="Ej. Club Verde Centro"
           />
         </label>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Dirección
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
             placeholder="Ej. Carrer de Mallorca 123"
           />
         </label>
 
-        {error ? <p style={styles.error}>{error}</p> : null}
+        {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
-        <button type="submit" style={styles.button} disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-full bg-botanical-primary px-5 py-3 text-sm font-medium tracking-[0.06em] text-white"
+        >
           {loading ? "Creando..." : "Crear Club"}
         </button>
       </form>
     </main>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  main: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    background: "#F7F6F2",
-    padding: "24px"
-  },
-  card: {
-    width: "100%",
-    maxWidth: "520px",
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "16px",
-    padding: "24px",
-    display: "grid",
-    gap: "14px"
-  },
-  title: {
-    margin: 0,
-    color: "#24312C"
-  },
-  subtitle: {
-    margin: 0,
-    color: "#60706A"
-  },
-  label: {
-    display: "grid",
-    gap: "6px",
-    color: "#24312C",
-    fontSize: "14px"
-  },
-  input: {
-    border: "1px solid #DFE8E2",
-    borderRadius: "12px",
-    padding: "10px 12px",
-    fontSize: "14px",
-    color: "#24312C"
-  },
-  error: {
-    margin: 0,
-    color: "#C25454",
-    fontSize: "14px"
-  },
-  button: {
-    border: "none",
-    borderRadius: "12px",
-    background: "#2F5D50",
-    color: "#FFFFFF",
-    padding: "12px 14px",
-    fontWeight: 600,
-    cursor: "pointer"
-  }
-};

@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -122,138 +122,80 @@ export default function InventoryPage() {
     setUpdatingId("");
   };
 
-  if (loading) {
-    return <main style={styles.loading}>Cargando inventario...</main>;
-  }
+  if (loading) return <main className="grid min-h-[70vh] place-items-center text-botanical-muted">Cargando inventario...</main>;
+
+  const badgeStyles: Record<string, string> = {
+    sativa: "bg-emerald-100 text-emerald-700",
+    indica: "bg-violet-100 text-violet-700",
+    cbd: "bg-amber-100 text-amber-700"
+  };
 
   return (
-    <main style={styles.main}>
-      <section style={styles.card}>
-        <header style={styles.header}>
-          <h1 style={styles.title}>Gestor de Inventario</h1>
-          <p style={styles.subtitle}>Productos activos: {activeCount}</p>
+    <main className="space-y-5">
+      <section className="rounded-3xl border border-botanical-line bg-white p-6 shadow-botanical">
+        <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="font-serif text-4xl text-botanical-primary">Inventory Management</h1>
+            <p className="mt-2 text-sm text-botanical-muted">Productos activos: {activeCount}</p>
+          </div>
         </header>
 
-        {error ? <p style={styles.error}>{error}</p> : null}
+        {error ? <p className="mb-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
-        <div style={styles.table}>
-          <div style={styles.thead}>
-            <span>Producto</span>
-            <span>Categoría</span>
-            <span>Tipo</span>
-            <span>Disponible</span>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-y-3">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-[0.1em] text-botanical-muted">
+                <th className="px-3">Producto</th>
+                <th className="px-3">Categoría</th>
+                <th className="px-3">Tipo</th>
+                <th className="px-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => {
+                const isActive = Boolean(activeMap[product.id]);
+                const isBusy = updatingId === product.id;
+                const strainKey = (product.strain_type || "").toLowerCase();
 
-          {products.map((product) => {
-            const isActive = Boolean(activeMap[product.id]);
-            const isBusy = updatingId === product.id;
-
-            return (
-              <div key={product.id} style={styles.row}>
-                <span style={styles.productName}>{product.name}</span>
-                <span style={styles.cellMuted}>{product.category}</span>
-                <span style={styles.cellMuted}>{product.strain_type}</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggle(product.id)}
-                  disabled={isBusy}
-                  style={{
-                    ...styles.toggle,
-                    ...(isActive ? styles.toggleOn : styles.toggleOff),
-                    opacity: isBusy ? 0.7 : 1
-                  }}
-                >
-                  {isBusy ? "..." : isActive ? "Activo" : "Inactivo"}
-                </button>
-              </div>
-            );
-          })}
+                return (
+                  <tr key={product.id} className="rounded-2xl bg-botanical-bg">
+                    <td className="rounded-l-2xl px-3 py-4 font-medium text-botanical-text">{product.name}</td>
+                    <td className="px-3 py-4 text-botanical-muted">{product.category}</td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.08em] ${
+                          badgeStyles[strainKey] ?? "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {product.strain_type}
+                      </span>
+                    </td>
+                    <td className="rounded-r-2xl px-3 py-4">
+                      <button
+                        type="button"
+                        onClick={() => handleToggle(product.id)}
+                        disabled={isBusy}
+                        className={`relative inline-flex h-8 w-16 items-center rounded-full border transition ${
+                          isActive
+                            ? "border-botanical-primary bg-botanical-primary/20"
+                            : "border-botanical-line bg-white"
+                        } ${isBusy ? "opacity-70" : ""}`}
+                      >
+                        <span
+                          className={`inline-block h-6 w-6 transform rounded-full bg-botanical-primary transition ${
+                            isActive ? "translate-x-8" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </section>
     </main>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  loading: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    background: "#F7F6F2",
-    color: "#60706A"
-  },
-  main: {
-    minHeight: "100vh",
-    background: "#F7F6F2",
-    padding: "24px",
-    display: "grid",
-    placeItems: "start center"
-  },
-  card: {
-    width: "100%",
-    maxWidth: "1000px",
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "16px",
-    padding: "20px"
-  },
-  header: {
-    marginBottom: "14px"
-  },
-  title: {
-    margin: 0,
-    color: "#24312C"
-  },
-  subtitle: {
-    margin: "4px 0 0 0",
-    color: "#60706A"
-  },
-  error: {
-    margin: "0 0 12px 0",
-    color: "#C25454"
-  },
-  table: {
-    display: "grid",
-    gap: "8px"
-  },
-  thead: {
-    display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr auto",
-    gap: "10px",
-    color: "#60706A",
-    fontSize: "13px",
-    padding: "0 2px"
-  },
-  row: {
-    display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr auto",
-    gap: "10px",
-    alignItems: "center",
-    border: "1px solid #DFE8E2",
-    borderRadius: "12px",
-    background: "#FFFFFF",
-    padding: "10px 12px"
-  },
-  productName: {
-    color: "#24312C",
-    fontWeight: 600
-  },
-  cellMuted: {
-    color: "#60706A"
-  },
-  toggle: {
-    border: "none",
-    borderRadius: "999px",
-    padding: "7px 12px",
-    fontWeight: 600,
-    cursor: "pointer"
-  },
-  toggleOn: {
-    background: "#2F5D50",
-    color: "#FFFFFF"
-  },
-  toggleOff: {
-    background: "#EEF3EF",
-    color: "#2F5D50"
-  }
-};

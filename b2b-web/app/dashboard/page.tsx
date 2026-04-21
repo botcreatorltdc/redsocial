@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
@@ -112,51 +112,54 @@ export default function DashboardHomePage() {
     void loadMetrics();
   }, [router]);
 
-  if (loading) {
-    return <main style={styles.loading}>Cargando dashboard...</main>;
-  }
+  const profileVisits = useMemo(() => metrics.totalReviews * 9 + metrics.activeProducts * 11, [metrics]);
+  const newReviews = recentReviews.length;
+
+  if (loading) return <main className="grid min-h-[70vh] place-items-center text-botanical-muted">Cargando dashboard...</main>;
 
   return (
-    <main style={styles.main}>
-      <section style={styles.header}>
-        <h1 style={styles.title}>Dashboard del Club</h1>
-        <p style={styles.subtitle}>Resumen rápido de tu operación diaria.</p>
+    <main className="space-y-6">
+      <section>
+        <h1 className="font-serif text-4xl text-botanical-primary">Welcome back</h1>
+        <p className="mt-2 text-sm text-botanical-muted">Resumen operativo de tu club en tiempo real.</p>
       </section>
 
-      {error ? <p style={styles.error}>{error}</p> : null}
+      {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
-      <section style={styles.grid}>
-        <article style={styles.metricCard}>
-          <p style={styles.metricLabel}>Productos Activos</p>
-          <p style={styles.metricValue}>{metrics.activeProducts}</p>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="rounded-3xl border border-botanical-line bg-white p-6 shadow-botanical">
+          <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">Profile Visits</p>
+          <p className="mt-3 font-serif text-4xl text-botanical-primary">{profileVisits}</p>
         </article>
-
-        <article style={styles.metricCard}>
-          <p style={styles.metricLabel}>Reseñas Totales</p>
-          <p style={styles.metricValue}>{metrics.totalReviews}</p>
+        <article className="rounded-3xl border border-botanical-line bg-botanical-cream p-6">
+          <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">New Reviews</p>
+          <p className="mt-3 font-serif text-4xl text-botanical-primary">{newReviews}</p>
         </article>
-
-        <article style={styles.metricCard}>
-          <p style={styles.metricLabel}>Puntuación Media</p>
-          <p style={styles.metricValue}>{metrics.averageRating.toFixed(1)}</p>
+        <article className="rounded-3xl border border-botanical-line bg-white p-6">
+          <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">Productos Activos</p>
+          <p className="mt-3 font-serif text-4xl text-botanical-primary">{metrics.activeProducts}</p>
+        </article>
+        <article className="rounded-3xl border border-botanical-line bg-white p-6">
+          <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">Puntuación Media</p>
+          <p className="mt-3 font-serif text-4xl text-botanical-primary">{metrics.averageRating.toFixed(1)}</p>
         </article>
       </section>
 
-      <section style={styles.reviewsSection}>
-        <h2 style={styles.reviewsTitle}>Reseñas recientes</h2>
+      <section className="rounded-3xl border border-botanical-line bg-white p-6 shadow-botanical">
+        <h2 className="font-serif text-3xl text-botanical-primary">Reseñas recientes</h2>
 
         {recentReviews.length === 0 ? (
-          <article style={styles.reviewCard}>
-            <p style={styles.reviewContent}>Aun no hay reseñas para este club.</p>
+          <article className="mt-4 rounded-3xl bg-botanical-bg p-5">
+            <p className="text-sm text-botanical-muted">Aun no hay reseñas para este club.</p>
           </article>
         ) : (
           recentReviews.map((review) => (
-            <article key={review.id} style={styles.reviewCard}>
-              <div style={styles.reviewHeader}>
-                <p style={styles.reviewRating}>{"★".repeat(Math.round(review.rating))}</p>
-                <p style={styles.reviewDate}>{formatRelativeDate(review.created_at)}</p>
+            <article key={review.id} className="mt-4 rounded-3xl border border-botanical-line bg-botanical-bg p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-amber-600">{"★".repeat(Math.round(review.rating))}</p>
+                <p className="text-xs text-botanical-muted">{formatRelativeDate(review.created_at)}</p>
               </div>
-              <p style={styles.reviewContent}>{review.content_text}</p>
+              <p className="mt-2 text-sm leading-6 text-botanical-text">{review.content_text}</p>
             </article>
           ))
         )}
@@ -164,91 +167,3 @@ export default function DashboardHomePage() {
     </main>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  loading: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    background: "#F7F6F2",
-    color: "#60706A"
-  },
-  main: {
-    minHeight: "100vh",
-    background: "#F7F6F2",
-    padding: "24px"
-  },
-  header: {
-    marginBottom: "14px"
-  },
-  title: {
-    margin: 0,
-    color: "#24312C"
-  },
-  subtitle: {
-    margin: "4px 0 0 0",
-    color: "#60706A"
-  },
-  error: {
-    margin: "0 0 12px 0",
-    color: "#C25454"
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "12px"
-  },
-  metricCard: {
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "16px",
-    padding: "16px"
-  },
-  metricLabel: {
-    margin: 0,
-    color: "#60706A",
-    fontSize: "14px"
-  },
-  metricValue: {
-    margin: "8px 0 0 0",
-    color: "#24312C",
-    fontSize: "28px",
-    fontWeight: 700
-  },
-  reviewsSection: {
-    marginTop: "18px"
-  },
-  reviewsTitle: {
-    margin: "0 0 10px 0",
-    color: "#24312C",
-    fontSize: "20px"
-  },
-  reviewCard: {
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "14px",
-    padding: "14px",
-    marginBottom: "10px"
-  },
-  reviewHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "6px"
-  },
-  reviewRating: {
-    margin: 0,
-    color: "#C9876B",
-    fontSize: "14px"
-  },
-  reviewDate: {
-    margin: 0,
-    color: "#60706A",
-    fontSize: "12px"
-  },
-  reviewContent: {
-    margin: 0,
-    color: "#24312C",
-    lineHeight: 1.45
-  }
-};

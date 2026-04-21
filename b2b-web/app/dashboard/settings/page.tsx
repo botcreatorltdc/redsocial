@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -104,154 +104,79 @@ export default function ClubSettingsPage() {
     setSaving(false);
   };
 
-  if (loading) {
-    return <main style={styles.loading}>Cargando configuración...</main>;
-  }
+  if (loading) return <main className="grid min-h-[70vh] place-items-center text-botanical-muted">Cargando configuración...</main>;
 
   return (
-    <main style={styles.main}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h1 style={styles.title}>Configuración del Club</h1>
-        <p style={styles.subtitle}>Actualiza la información pública de tu perfil.</p>
+    <main>
+      <form
+        onSubmit={handleSubmit}
+        className="grid w-full max-w-3xl gap-4 rounded-3xl border border-botanical-line bg-white p-8 shadow-botanical"
+      >
+        <h1 className="font-serif text-4xl text-botanical-primary">Configuración del Club</h1>
+        <p className="text-sm text-botanical-muted">Actualiza la información pública de tu perfil.</p>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Nombre
           <input
             value={form.name}
             onChange={(e) => handleChange("name", e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
           />
         </label>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Descripción
           <textarea
             value={form.description}
             onChange={(e) => handleChange("description", e.target.value)}
-            style={styles.textarea}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
             rows={4}
           />
         </label>
 
-        <label style={styles.label}>
+        <label className="grid gap-2 text-sm text-botanical-text">
           Dirección
           <input
             value={form.address}
             onChange={(e) => handleChange("address", e.target.value)}
             required
-            style={styles.input}
+            className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
           />
         </label>
 
-        <div style={styles.row}>
-          <label style={styles.label}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm text-botanical-text">
             Latitud
             <input
               value={form.lat}
               onChange={(e) => handleChange("lat", e.target.value)}
               required
-              style={styles.input}
+              className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
             />
           </label>
-          <label style={styles.label}>
+          <label className="grid gap-2 text-sm text-botanical-text">
             Longitud
             <input
               value={form.lng}
               onChange={(e) => handleChange("lng", e.target.value)}
               required
-              style={styles.input}
+              className="rounded-2xl border border-botanical-line bg-botanical-bg px-4 py-3 outline-none focus:border-botanical-primary"
             />
           </label>
         </div>
 
-        {error ? <p style={styles.error}>{error}</p> : null}
-        {success ? <p style={styles.success}>{success}</p> : null}
+        {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
+        {success ? <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</p> : null}
 
-        <button type="submit" style={styles.button} disabled={saving}>
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-fit rounded-full bg-botanical-primary px-6 py-3 text-sm font-medium tracking-[0.06em] text-white"
+        >
           {saving ? "Guardando..." : "Guardar Cambios"}
         </button>
       </form>
     </main>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  loading: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    background: "#F7F6F2",
-    color: "#60706A"
-  },
-  main: {
-    minHeight: "100vh",
-    background: "#F7F6F2",
-    padding: "24px",
-    display: "grid",
-    placeItems: "start center"
-  },
-  card: {
-    width: "100%",
-    maxWidth: "700px",
-    background: "#FFFFFF",
-    border: "1px solid #DFE8E2",
-    borderRadius: "16px",
-    padding: "24px",
-    display: "grid",
-    gap: "14px"
-  },
-  title: {
-    margin: 0,
-    color: "#24312C"
-  },
-  subtitle: {
-    margin: 0,
-    color: "#60706A"
-  },
-  row: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "12px"
-  },
-  label: {
-    display: "grid",
-    gap: "6px",
-    color: "#24312C",
-    fontSize: "14px"
-  },
-  input: {
-    border: "1px solid #DFE8E2",
-    borderRadius: "12px",
-    padding: "10px 12px",
-    fontSize: "14px",
-    color: "#24312C"
-  },
-  textarea: {
-    border: "1px solid #DFE8E2",
-    borderRadius: "12px",
-    padding: "10px 12px",
-    fontSize: "14px",
-    color: "#24312C",
-    resize: "vertical"
-  },
-  button: {
-    border: "none",
-    borderRadius: "12px",
-    background: "#2F5D50",
-    color: "#FFFFFF",
-    padding: "12px 14px",
-    fontWeight: 600,
-    cursor: "pointer"
-  },
-  error: {
-    margin: 0,
-    color: "#C25454",
-    fontSize: "14px"
-  },
-  success: {
-    margin: 0,
-    color: "#3A7D62",
-    fontSize: "14px"
-  }
-};

@@ -80,14 +80,15 @@ export default function CatalogScreen() {
         return;
       }
 
-      const mapped: ProductItem[] = data.map((product) => ({
+      const rows = (data as any[]) ?? [];
+      const mapped: ProductItem[] = rows.map((product) => ({
         id: product.id,
         name: product.name,
         strainType: product.strain_type,
         thcPercent: typeof product.thc_avg === "number" ? product.thc_avg : 0,
         cbdPercent: typeof product.cbd_avg === "number" ? product.cbd_avg : 0,
         effects: Array.isArray(product.effects_json)
-          ? product.effects_json.map((effect) => String(effect))
+          ? product.effects_json.map((effect: unknown) => String(effect))
           : []
       }));
 

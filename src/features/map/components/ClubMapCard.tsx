@@ -1,8 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "../../../theme/colors";
-import { radius } from "../../../theme/radius";
-import { typography } from "../../../theme/typography";
+import { Pressable, Text, View } from "react-native";
 
 type ClubMapCardProps = {
   clubName: string;
@@ -16,69 +13,25 @@ function formatStars(rating: number) {
   return "★".repeat(rounded) + "☆".repeat(5 - rounded);
 }
 
-export function ClubMapCard({
-  clubName,
-  distanceKm,
-  rating,
-  onViewProfile
-}: ClubMapCardProps) {
+export function ClubMapCard({ clubName, distanceKm, rating, onViewProfile }: ClubMapCardProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.handle} />
-      <Text style={styles.clubName}>{clubName}</Text>
-      <Text style={styles.metaText}>A {distanceKm.toFixed(1)} km de ti</Text>
-      <Text style={styles.stars}>{formatStars(rating)}</Text>
+    <View className="rounded-t-[32px] border border-botanical-line bg-white px-6 pb-7 pt-4">
+      <View className="mb-3 h-1.5 w-14 self-center rounded-full bg-botanical-line" />
+      <Text className="text-[11px] font-semibold tracking-[1.2px] text-[#7C857F]">MONSTERA LOUNGE</Text>
+      <Text className="mt-1 font-serif text-4xl text-botanical-primary">{clubName}</Text>
+      <View className="mt-3 flex-row items-center justify-between">
+        <Text className="text-base tracking-[1px] text-[#C7A54B]">{formatStars(rating)}</Text>
+        <Text className="text-sm text-botanical-muted">{distanceKm.toFixed(1)} km</Text>
+      </View>
 
-      <Pressable onPress={onViewProfile} style={styles.button}>
-        <Text style={styles.buttonText}>Ver Perfil Completo</Text>
+      <Pressable
+        onPress={onViewProfile}
+        className="mt-5 items-center rounded-full bg-botanical-primary py-3.5"
+      >
+        <Text className="text-sm font-semibold tracking-[0.3px] text-botanical-bg">
+          Ver Perfil Completo
+        </Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderColor: colors.border,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 20
-  },
-  handle: {
-    alignSelf: "center",
-    width: 44,
-    height: 5,
-    borderRadius: radius.pill,
-    backgroundColor: colors.border,
-    marginBottom: 10
-  },
-  clubName: {
-    color: colors.textPrimary,
-    ...typography.title,
-    fontSize: 20
-  },
-  metaText: {
-    color: colors.textSecondary,
-    ...typography.body,
-    marginTop: 4
-  },
-  stars: {
-    color: colors.star,
-    ...typography.subtitle,
-    marginTop: 6
-  },
-  button: {
-    marginTop: 14,
-    backgroundColor: colors.pine,
-    borderRadius: radius.md,
-    paddingVertical: 12,
-    alignItems: "center"
-  },
-  buttonText: {
-    color: colors.surface,
-    ...typography.subtitle
-  }
-});
