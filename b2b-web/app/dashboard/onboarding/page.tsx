@@ -10,6 +10,7 @@ export default function DashboardOnboardingPage() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,6 +25,19 @@ export default function DashboardOnboardingPage() {
       return;
     }
 
+    // Si el owner ya tiene club (unique owner_id), evitamos conflicto 409.
+    const { data: existingClub } = await supabase
+      .from("clubs")
+      .select("id")
+      .eq("owner_id", ownerId)
+      .limit(1)
+      .maybeSingle();
+    if (existingClub) {
+      setInfo("Ya tenías un club creado. Te redirigimos al dashboard...");
+      setTimeout(() => router.replace("/dashboard"), 900);
+      return;
+    }
+
     const { error: insertError } = await supabase.from("clubs").insert({
       // No enviamos id: Supabase usa el default de la tabla
       name: clubName.trim(),
@@ -34,6 +48,11 @@ export default function DashboardOnboardingPage() {
     });
 
     if (insertError) {
+      if (insertError.code === "23505") {
+        setInfo("Tu usuario ya tiene un club. Te redirigimos al dashboard...");
+        setTimeout(() => router.replace("/dashboard"), 900);
+        return;
+      }
       setError("No se pudo crear el club. Revisa los datos e inténtalo de nuevo.");
       setLoading(false);
       return;
@@ -73,6 +92,7 @@ export default function DashboardOnboardingPage() {
           />
         </label>
 
+        {info ? <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{info}</p> : null}
         {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
         <button

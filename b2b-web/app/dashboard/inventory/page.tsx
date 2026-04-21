@@ -45,7 +45,13 @@ export default function InventoryPage() {
         .limit(1)
         .maybeSingle();
 
-      if (clubError || !club) {
+      if (clubError) {
+        setError("No se pudo validar el club asociado a tu usuario.");
+        setLoading(false);
+        return;
+      }
+
+      if (!club) {
         router.replace("/dashboard/onboarding");
         return;
       }

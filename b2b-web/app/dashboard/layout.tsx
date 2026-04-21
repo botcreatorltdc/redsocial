@@ -32,7 +32,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         .limit(1);
 
       if (error) {
-        router.replace("/dashboard/onboarding");
+        console.error("No se pudo comprobar el club del owner:", error.message);
+        setIsChecking(false);
         return;
       }
 

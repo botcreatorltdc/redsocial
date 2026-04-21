@@ -45,7 +45,13 @@ export default function ClubSettingsPage() {
         .limit(1)
         .maybeSingle();
 
-      if (selectError || !club) {
+      if (selectError) {
+        setError("No se pudo validar el club asociado a tu usuario.");
+        setLoading(false);
+        return;
+      }
+
+      if (!club) {
         router.replace("/dashboard/onboarding");
         return;
       }
