@@ -738,10 +738,13 @@ export default function MapScreen() {
 
   let MapView: any = null;
   let Marker: any = null;
+  const androidSafeMode = Platform.OS === "android";
   try {
-    const mapsModule = require("react-native-maps");
-    MapView = mapsModule.default;
-    Marker = mapsModule.Marker;
+    if (!androidSafeMode) {
+      const mapsModule = require("react-native-maps");
+      MapView = mapsModule.default;
+      Marker = mapsModule.Marker;
+    }
   } catch (_error) {
     MapView = null;
     Marker = null;
@@ -753,7 +756,11 @@ export default function MapScreen() {
         <View className="flex-1 px-4" style={{ paddingTop: Math.max(insets.top, 12) }}>
           <StateCard
             title="Mapa no disponible en este entorno"
-            description="Instala/abre la app en dispositivo Android con APK para usar el mapa completo."
+            description={
+              androidSafeMode
+                ? "Modo estable Android activo para evitar cierres. Estamos usando vista segura mientras validamos el crash del mapa nativo."
+                : "Instala/abre la app en dispositivo Android con APK para usar el mapa completo."
+            }
             variant="error"
           />
         </View>

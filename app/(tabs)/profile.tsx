@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { InlineError, SectionHeader } from "../../src/components/AppUi";
 import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { supabase } from "../../src/lib/supabase";

@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
-import { Pressable, SafeAreaView, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../../src/lib/supabase";
 
 export default function LoginShortcutScreen() {

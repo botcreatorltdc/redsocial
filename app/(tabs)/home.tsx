@@ -1,6 +1,7 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { FlatList, Image, Pressable, RefreshControl, SafeAreaView, Text, View } from "react-native";
+import { FlatList, Image, Pressable, RefreshControl, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { PrimaryEmptyAction, SectionHeader } from "../../src/components/AppUi";
 import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { supabase } from "../../src/lib/supabase";
@@ -148,6 +149,13 @@ export default function HomeScreen() {
         onPress={() => router.push("/modals/create-post")}
       >
         <Text className="-mt-0.5 text-3xl text-botanical-bg">+</Text>
+      </Pressable>
+      <Pressable
+        className="absolute bottom-24 right-[18px] rounded-full border border-botanical-line bg-white px-4 py-2"
+        style={{ shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
+        onPress={() => router.push("/(tabs)/login")}
+      >
+        <Text className="text-xs font-semibold text-botanical-primary">Login</Text>
       </Pressable>
     </SafeAreaView>
   );
