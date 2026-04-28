@@ -365,10 +365,33 @@ export default function MapScreen() {
   };
 
   if (Platform.OS === "web") {
+    const WebInteractiveMap = require("../../src/features/map/components/WebInteractiveMap").WebInteractiveMap as React.ComponentType<{
+      items: Array<{ id: string; name: string; latitude: number; longitude: number; pinType: "club" | "spot" }>;
+      onSelect: (id: string) => void;
+      canPickCoordinates: boolean;
+      onPickCoordinates: (lat: number, lng: number) => void;
+    }>;
+    const webItems =
+      mode === "clubs"
+        ? filteredClubs.map((club) => ({
+            id: club.id,
+            name: club.name,
+            latitude: club.latitude,
+            longitude: club.longitude,
+            pinType: "club" as const
+          }))
+        : filteredSpots.map((spot) => ({
+            id: spot.id,
+            name: spot.name,
+            latitude: spot.latitude,
+            longitude: spot.longitude,
+            pinType: "spot" as const
+          }));
+
     return (
       <View className="flex-1 bg-botanical-bg">
         <ScrollView
-          className="flex-1 px-4 pt-20"
+          className="flex-1 px-4 pt-8"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {error ? <InlineError message={error} /> : null}
@@ -461,6 +484,20 @@ export default function MapScreen() {
               <Text className="text-botanical-muted">{item.name}</Text>
             </Pressable>
           ))}
+          <View className="mt-3 h-[420px] rounded-3xl border border-botanical-line bg-white p-2">
+            <WebInteractiveMap
+              items={webItems}
+              onSelect={(id) => {
+                if (mode === "clubs") setSelectedClubId(id);
+                else setSelectedSpotId(id);
+              }}
+              canPickCoordinates={mode === "spots" && showSpotForm}
+              onPickCoordinates={(lat, lng) => {
+                setSpotLat(lat.toFixed(6));
+                setSpotLng(lng.toFixed(6));
+              }}
+            />
+          </View>
         </ScrollView>
 
         {mode === "clubs" && selectedClub ? (
