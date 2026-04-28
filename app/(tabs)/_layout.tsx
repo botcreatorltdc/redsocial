@@ -46,6 +46,13 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />
         }}
       />
+      <Tabs.Screen
+        name="login"
+        options={{
+          title: "Login",
+          tabBarIcon: ({ color, size }) => <Ionicons name="log-in-outline" size={size} color={color} />
+        }}
+      />
     </Tabs>
   );
 }

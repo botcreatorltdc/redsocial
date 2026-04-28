@@ -1,6 +1,7 @@
 import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { supabase } from "../src/lib/supabase";
 import "../global.css";
 
@@ -46,7 +47,7 @@ export default function RootLayout() {
   }, [isAuthenticated, segments]);
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
@@ -54,6 +55,6 @@ export default function RootLayout() {
         <Stack.Screen name="club/[id]" />
         <Stack.Screen name="modals/create-post" options={{ presentation: "modal" }} />
       </Stack>
-    </>
+    </SafeAreaProvider>
   );
 }

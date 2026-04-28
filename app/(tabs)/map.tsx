@@ -224,7 +224,12 @@ export default function MapScreen() {
   };
 
   useEffect(() => {
-    void supabase.auth.getSession().then((res) => setCurrentUserId(res.data.session?.user.id ?? null));
+    const init = async () => {
+      const sessionData = await supabase.auth.getSession();
+      setCurrentUserId(sessionData.data.session?.user.id ?? null);
+      setError("");
+    };
+    void init();
     if (mode === "clubs") {
       void loadClubs();
     } else {
