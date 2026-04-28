@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { InlineError, PrimaryEmptyAction } from "../../src/components/AppUi";
 import { SkeletonList, StateCard } from "../../src/components/StateCard";
 import { ClubMapCard } from "../../src/features/map/components/ClubMapCard";
@@ -52,6 +53,7 @@ function calculateMockDistanceKm(latitude: number, longitude: number) {
 }
 
 export default function MapScreen() {
+  const insets = useSafeAreaInsets();
   const [clubs, setClubs] = useState<ClubMapItem[]>([]);
   const [spots, setSpots] = useState<SpotMapItem[]>([]);
   const [mode, setMode] = useState<MapMode>("clubs");
@@ -516,9 +518,10 @@ export default function MapScreen() {
           }));
 
     return (
-      <View className="flex-1 bg-botanical-bg">
+      <SafeAreaView className="flex-1 bg-botanical-bg">
         <ScrollView
-          className="flex-1 px-4 pt-8"
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingTop: Math.max(insets.top, 8) }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {error ? <InlineError message={error} /> : null}
@@ -724,24 +727,45 @@ export default function MapScreen() {
             </Pressable>
           </View>
         ) : null}
-      </View>
+      </SafeAreaView>
     );
   }
 
-  const mapsModule = require("react-native-maps");
-  const MapView = mapsModule.default;
-  const Marker = mapsModule.Marker;
+  let MapView: any = null;
+  let Marker: any = null;
+  try {
+    const mapsModule = require("react-native-maps");
+    MapView = mapsModule.default;
+    Marker = mapsModule.Marker;
+  } catch (_error) {
+    MapView = null;
+    Marker = null;
+  }
+
+  if (!MapView || !Marker) {
+    return (
+      <SafeAreaView className="flex-1 bg-botanical-bg">
+        <View className="flex-1 px-4" style={{ paddingTop: Math.max(insets.top, 12) }}>
+          <StateCard
+            title="Mapa no disponible en este entorno"
+            description="Instala/abre la app en dispositivo Android con APK para usar el mapa completo."
+            variant="error"
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View className="flex-1 bg-botanical-bg">
+    <SafeAreaView className="flex-1 bg-botanical-bg">
       {loading ? (
-        <View className="absolute left-4 right-4 top-6 z-10">
+        <View className="absolute left-4 right-4 z-10" style={{ top: Math.max(insets.top, 8) }}>
           <StateCard title={mode === "clubs" ? "Cargando clubes..." : "Cargando spots..."} variant="loading" />
         </View>
       ) : null}
 
       {!loading && mode === "clubs" && filteredClubs.length === 0 ? (
-        <View className="absolute left-4 right-4 top-20 z-10">
+        <View className="absolute left-4 right-4 z-10" style={{ top: Math.max(insets.top + 56, 76) }}>
           <View>
             <StateCard
               title="No hay clubes con coordenadas"
@@ -753,7 +777,7 @@ export default function MapScreen() {
         </View>
       ) : null}
       {!loading && mode === "spots" && filteredSpots.length === 0 ? (
-        <View className="absolute left-4 right-4 top-20 z-10">
+        <View className="absolute left-4 right-4 z-10" style={{ top: Math.max(insets.top + 56, 76) }}>
           <View>
             <StateCard title="Sin spots todavía" description="Usa el modo spots para crear el primero." variant="empty" />
             <PrimaryEmptyAction label="Actualizar" onPress={onRefresh} />
@@ -788,7 +812,7 @@ export default function MapScreen() {
         ))}
       </MapView>
       {mode === "spots" ? (
-        <View className="absolute right-3 top-24 rounded-2xl bg-white/95 px-3 py-2">
+        <View className="absolute right-3 rounded-2xl bg-white/95 px-3 py-2" style={{ top: Math.max(insets.top + 68, 92) }}>
           <Text className="text-[11px] text-botanical-muted">Toca el mapa para fijar coordenadas del spot</Text>
         </View>
       ) : null}
@@ -849,7 +873,7 @@ export default function MapScreen() {
           </Pressable>
         </View>
       ) : null}
-    </View>
+    </SafeAreaView>
   );
 }
 
