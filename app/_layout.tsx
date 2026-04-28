@@ -34,12 +34,6 @@ export default function RootLayout() {
     }
 
     const inAuthGroup = segments[0] === "(auth)";
-    const inTabsGroup = segments[0] === "(tabs)";
-
-    if (!isAuthenticated && inTabsGroup) {
-      router.replace("/(auth)/sign-in");
-      return;
-    }
 
     if (isAuthenticated && inAuthGroup) {
       router.replace("/(tabs)/home");
