@@ -8,6 +8,7 @@ type Metrics = {
   activeProducts: number;
   totalReviews: number;
   averageRating: number;
+  openSpotReports: number;
 };
 
 type RecentReview = {
@@ -15,6 +16,11 @@ type RecentReview = {
   content_text: string;
   rating: number;
   created_at: string;
+};
+
+type ReplyRow = {
+  review_id: string;
+  reply_text: string;
 };
 
 function formatRelativeDate(dateInput: string) {
@@ -40,8 +46,13 @@ export default function DashboardHomePage() {
   const [metrics, setMetrics] = useState<Metrics>({
     activeProducts: 0,
     totalReviews: 0,
-    averageRating: 0
+    averageRating: 0,
+    openSpotReports: 0
   });
+  const [clubId, setClubId] = useState("");
+  const [replyMap, setReplyMap] = useState<Record<string, string>>({});
+  const [savingReplyId, setSavingReplyId] = useState("");
+  const [interactionsCount, setInteractionsCount] = useState(0);
 
   useEffect(() => {
     const loadMetrics = async () => {
@@ -73,6 +84,7 @@ export default function DashboardHomePage() {
         router.replace("/dashboard/onboarding");
         return;
       }
+      setClubId(club.id);
 
       const { count, error: countError } = await supabase
         .from("club_inventory")
@@ -99,6 +111,27 @@ export default function DashboardHomePage() {
         return;
       }
 
+      const { data: repliesData } = await (supabase as any)
+        .from("review_replies")
+        .select("review_id, reply_text")
+        .eq("club_id", club.id);
+      const nextReplyMap: Record<string, string> = {};
+      ((repliesData as ReplyRow[] | null) ?? []).forEach((reply) => {
+        nextReplyMap[reply.review_id] = reply.reply_text;
+      });
+      setReplyMap(nextReplyMap);
+
+      const { count: interactions } = await (supabase as any)
+        .from("club_interactions")
+        .select("*", { count: "exact", head: true })
+        .eq("club_id", club.id);
+      setInteractionsCount(interactions ?? 0);
+
+      const { count: openReports } = await (supabase as any)
+        .from("smoke_spot_reports")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "open");
+
       const reviewRows = (reviewsData as RecentReview[]) ?? [];
       const totalReviews = reviewRows.length;
       const averageRating =
@@ -109,7 +142,8 @@ export default function DashboardHomePage() {
       setMetrics({
         activeProducts: count ?? 0,
         totalReviews,
-        averageRating
+        averageRating,
+        openSpotReports: openReports ?? 0
       });
       setRecentReviews(reviewRows.slice(0, 5));
       setLoading(false);
@@ -118,8 +152,34 @@ export default function DashboardHomePage() {
     void loadMetrics();
   }, [router]);
 
-  const profileVisits = useMemo(() => metrics.totalReviews * 9 + metrics.activeProducts * 11, [metrics]);
+  const profileVisits = useMemo(() => interactionsCount, [interactionsCount]);
   const newReviews = recentReviews.length;
+
+  const saveReply = async (reviewId: string) => {
+    if (!clubId) return;
+    setSavingReplyId(reviewId);
+    const session = (await supabase.auth.getSession()).data.session;
+    const ownerId = session?.user.id;
+    if (!ownerId) {
+      setSavingReplyId("");
+      return;
+    }
+    const replyText = (replyMap[reviewId] || "").trim();
+    if (!replyText) {
+      setSavingReplyId("");
+      return;
+    }
+    await (supabase as any).from("review_replies").upsert(
+      {
+        review_id: reviewId,
+        club_id: clubId,
+        author_id: ownerId,
+        reply_text: replyText
+      },
+      { onConflict: "review_id,club_id" }
+    );
+    setSavingReplyId("");
+  };
 
   if (loading) return <main className="grid min-h-[70vh] place-items-center text-botanical-muted">Cargando dashboard...</main>;
 
@@ -149,6 +209,10 @@ export default function DashboardHomePage() {
           <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">Puntuación Media</p>
           <p className="mt-3 font-serif text-4xl text-botanical-primary">{metrics.averageRating.toFixed(1)}</p>
         </article>
+        <article className="rounded-3xl border border-botanical-line bg-white p-6">
+          <p className="text-xs uppercase tracking-[0.12em] text-botanical-muted">Reportes Spots (abiertos)</p>
+          <p className="mt-3 font-serif text-4xl text-botanical-primary">{metrics.openSpotReports}</p>
+        </article>
       </section>
 
       <section className="rounded-3xl border border-botanical-line bg-white p-6 shadow-botanical">
@@ -166,6 +230,22 @@ export default function DashboardHomePage() {
                 <p className="text-xs text-botanical-muted">{formatRelativeDate(review.created_at)}</p>
               </div>
               <p className="mt-2 text-sm leading-6 text-botanical-text">{review.content_text}</p>
+              <div className="mt-3 space-y-2">
+                <textarea
+                  value={replyMap[review.id] ?? ""}
+                  onChange={(e) => setReplyMap((prev) => ({ ...prev, [review.id]: e.target.value }))}
+                  placeholder="Responder reseña..."
+                  className="w-full rounded-2xl border border-botanical-line bg-white px-3 py-2 text-sm outline-none"
+                  rows={2}
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveReply(review.id)}
+                  className="rounded-full border border-botanical-primary px-4 py-2 text-xs text-botanical-primary"
+                >
+                  {savingReplyId === review.id ? "Guardando..." : "Guardar respuesta"}
+                </button>
+              </div>
             </article>
           ))
         )}

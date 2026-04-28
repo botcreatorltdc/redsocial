@@ -57,6 +57,8 @@ Ejecutar en Supabase SQL Editor:
 - `supabase/migrations/002_inventory_audit_logs.sql`
 - `supabase/migrations/003_smoke_spots.sql`
 - `supabase/migrations/004_smoke_spot_votes.sql`
+- `supabase/migrations/005_community_features.sql`
+- `supabase/migrations/006_reports_moderation_policy.sql`
 
 Esto asegura:
 
@@ -65,6 +67,7 @@ Esto asegura:
 - Tabla de auditoria `inventory_audit_logs` con RLS por club owner.
 - Tabla comunitaria `smoke_spots` para mapa de spots recomendados.
 - Tabla `smoke_spot_votes` para votos comunitarios de spots.
+- Favoritos, media/tags de spots, reportes, respuestas de reseñas y analítica de interacciones.
 
 ## Storage recomendado
 

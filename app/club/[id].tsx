@@ -81,6 +81,21 @@ export default function ClubProfileScreen() {
 
       setClub((clubData as ClubData | null) ?? null);
       setMenuProducts(products);
+      const session = (await supabase.auth.getSession()).data.session;
+      const userId = session?.user.id ?? null;
+      await (supabase as any).from("club_interactions").insert([
+        {
+          club_id: clubId,
+          user_id: userId,
+          event_type: "profile_view"
+        },
+        {
+          club_id: clubId,
+          user_id: userId,
+          event_type: "menu_view",
+          metadata: { products_count: products.length }
+        }
+      ]);
       setLoading(false);
     };
 

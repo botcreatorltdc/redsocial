@@ -12,6 +12,7 @@ type ClubMapItem = {
   latitude: number;
   longitude: number;
   rating: number;
+  isFavorite?: boolean;
 };
 
 type SpotMapItem = {
@@ -27,6 +28,9 @@ type SpotMapItem = {
   score: number;
   votesScore: number;
   myVote: -1 | 0 | 1;
+  imageUrl: string | null;
+  tags: string[];
+  isFavorite: boolean;
 };
 
 type MapMode = "clubs" | "spots";
@@ -69,6 +73,12 @@ export default function MapScreen() {
   const [editingSpotId, setEditingSpotId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [info, setInfo] = useState("");
+  const [onlyOpenNow, setOnlyOpenNow] = useState(false);
+  const [maxDangerFilter, setMaxDangerFilter] = useState("5");
+  const [minTranquilityFilter, setMinTranquilityFilter] = useState("1");
+  const [spotImageUrl, setSpotImageUrl] = useState("");
+  const [spotImageFile, setSpotImageFile] = useState<File | null>(null);
+  const [spotTags, setSpotTags] = useState("");
 
   const renderMetricPicker = (
     label: string,
@@ -101,8 +111,12 @@ export default function MapScreen() {
       if (!refreshing) setLoading(true);
       const { data, error } = await supabase
         .from("clubs")
-        .select("id, name, lat, lng, is_verified")
+        .select("id, name, lat, lng, is_verified, amenities_json")
         .order("name", { ascending: true });
+      const { data: favoritesData } = await (supabase as any)
+        .from("user_favorites")
+        .select("target_id")
+        .eq("target_type", "club");
 
       if (error || !data) {
         setError("No se pudieron cargar los clubes. Intenta de nuevo.");
@@ -114,14 +128,20 @@ export default function MapScreen() {
       setError("");
 
       const rows = (data as any[]) ?? [];
+      const favoriteIds = new Set(((favoritesData as Array<{ target_id: string }> | null) ?? []).map((f) => f.target_id));
       const mapped: ClubMapItem[] = rows
-        .filter((club) => typeof club.lat === "number" && typeof club.lng === "number")
+        .filter((club) => {
+          if (!(typeof club.lat === "number" && typeof club.lng === "number")) return false;
+          if (!onlyOpenNow) return true;
+          return Boolean(club.amenities_json?.open_now);
+        })
         .map((club) => ({
           id: club.id,
           name: club.name,
           latitude: club.lat as number,
           longitude: club.lng as number,
-          rating: club.is_verified ? 5 : 4
+          rating: club.is_verified ? 5 : 4,
+          isFavorite: favoriteIds.has(club.id)
         }));
 
       setClubs(mapped);
@@ -138,6 +158,14 @@ export default function MapScreen() {
     const { data: votesData } = await (supabase as any)
       .from("smoke_spot_votes")
       .select("spot_id, user_id, value");
+    const { data: mediaData } = await (supabase as any)
+      .from("smoke_spot_media")
+      .select("spot_id, image_url, tags")
+      .order("created_at", { ascending: false });
+    const { data: favoritesData } = await (supabase as any)
+      .from("user_favorites")
+      .select("target_id")
+      .eq("target_type", "spot");
 
     if (spotsError || !data) {
       setError("No se pudieron cargar los spots. Intenta de nuevo.");
@@ -148,6 +176,15 @@ export default function MapScreen() {
     }
     setError("");
     const rows = (data as any[]) ?? [];
+    const mediaRows =
+      (mediaData as Array<{ spot_id: string; image_url: string; tags: string[] | null }> | null) ?? [];
+    const mediaBySpot = mediaRows.reduce<Record<string, { imageUrl: string | null; tags: string[] }>>((acc, row) => {
+      if (!acc[row.spot_id]) {
+        acc[row.spot_id] = { imageUrl: row.image_url ?? null, tags: Array.isArray(row.tags) ? row.tags : [] };
+      }
+      return acc;
+    }, {});
+    const favoriteIds = new Set(((favoritesData as Array<{ target_id: string }> | null) ?? []).map((f) => f.target_id));
     const votesRows = (votesData as Array<{ spot_id: string; user_id: string; value: number }> | null) ?? [];
     const votesBySpot = votesRows.reduce<Record<string, { total: number; mine: -1 | 0 | 1 }>>((acc, vote) => {
       if (!acc[vote.spot_id]) {
@@ -173,7 +210,10 @@ export default function MapScreen() {
         createdBy: String(spot.created_by),
         score: (Number(spot.tranquility_level) || 1) + (Number(spot.comfort_level) || 1) - (Number(spot.danger_level) || 1),
         votesScore: votesBySpot[spot.id]?.total ?? 0,
-        myVote: votesBySpot[spot.id]?.mine ?? 0
+        myVote: votesBySpot[spot.id]?.mine ?? 0,
+        imageUrl: mediaBySpot[spot.id]?.imageUrl ?? null,
+        tags: mediaBySpot[spot.id]?.tags ?? [],
+        isFavorite: favoriteIds.has(spot.id)
       }));
     mapped.sort((a, b) => (b.score + b.votesScore) - (a.score + a.votesScore));
     setSpots(mapped);
@@ -188,7 +228,7 @@ export default function MapScreen() {
     } else {
       void loadSpots();
     }
-  }, [mode]);
+  }, [mode, onlyOpenNow, maxDangerFilter, minTranquilityFilter, currentUserId]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -206,9 +246,13 @@ export default function MapScreen() {
   }, [clubs, search]);
   const filteredSpots = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return spots;
-    return spots.filter((spot) => spot.name.toLowerCase().includes(q));
-  }, [spots, search]);
+    return spots.filter((spot) => {
+      const matchSearch = !q || spot.name.toLowerCase().includes(q);
+      const matchDanger = spot.dangerLevel <= Number(maxDangerFilter);
+      const matchTranquility = spot.tranquilityLevel >= Number(minTranquilityFilter);
+      return matchSearch && matchDanger && matchTranquility;
+    });
+  }, [spots, search, maxDangerFilter, minTranquilityFilter]);
 
   const selectedClub = useMemo(() => filteredClubs.find((club) => club.id === selectedClubId) ?? null, [filteredClubs, selectedClubId]);
   const selectedSpot = useMemo(() => filteredSpots.find((spot) => spot.id === selectedSpotId) ?? null, [filteredSpots, selectedSpotId]);
@@ -240,6 +284,22 @@ export default function MapScreen() {
     }
     setCreatingSpot(true);
     setInfo("");
+    let nextSpotImageUrl = spotImageUrl.trim();
+    if (spotImageFile && currentUserId) {
+      const ext = spotImageFile.name.split(".").pop() || "jpg";
+      const path = `${currentUserId}/spot-${Date.now()}.${ext}`;
+      const { error: uploadError } = await (supabase as any).storage.from("spot-media").upload(path, spotImageFile, {
+        upsert: true,
+        contentType: spotImageFile.type || "image/jpeg"
+      });
+      if (uploadError) {
+        setError("No se pudo subir la foto del spot. Revisa bucket 'spot-media'.");
+        setCreatingSpot(false);
+        return;
+      }
+      const { data: publicUrlData } = (supabase as any).storage.from("spot-media").getPublicUrl(path);
+      nextSpotImageUrl = publicUrlData?.publicUrl ?? nextSpotImageUrl;
+    }
     if (editingSpotId) {
       const { error: updateError } = await (supabase as any)
         .from("smoke_spots")
@@ -260,20 +320,35 @@ export default function MapScreen() {
       }
       setInfo("Spot actualizado correctamente.");
     } else {
-      const { error: insertError } = await (supabase as any).from("smoke_spots").insert({
-        name: spotName.trim(),
-        description: spotDescription.trim() || null,
-        lat,
-        lng,
-        danger_level: Number(dangerLevel),
-        tranquility_level: Number(tranquilityLevel),
-        comfort_level: Number(comfortLevel),
-        created_by: userId
-      });
+      const { data: insertedSpot, error: insertError } = await (supabase as any)
+        .from("smoke_spots")
+        .insert({
+          name: spotName.trim(),
+          description: spotDescription.trim() || null,
+          lat,
+          lng,
+          danger_level: Number(dangerLevel),
+          tranquility_level: Number(tranquilityLevel),
+          comfort_level: Number(comfortLevel),
+          created_by: userId
+        })
+        .select("id")
+        .maybeSingle();
       if (insertError) {
         setError("No se pudo crear el spot. Revisa políticas RLS o datos.");
         setCreatingSpot(false);
         return;
+      }
+      if (nextSpotImageUrl && insertedSpot?.id) {
+        await (supabase as any).from("smoke_spot_media").insert({
+          spot_id: insertedSpot.id,
+          image_url: nextSpotImageUrl,
+          tags: spotTags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+          created_by: userId
+        });
       }
       setInfo("Spot creado y publicado en el mapa.");
     }
@@ -281,6 +356,9 @@ export default function MapScreen() {
     setSpotDescription("");
     setShowSpotForm(false);
     setEditingSpotId(null);
+    setSpotImageUrl("");
+    setSpotImageFile(null);
+    setSpotTags("");
     setCreatingSpot(false);
     await loadSpots();
   };
@@ -364,6 +442,55 @@ export default function MapScreen() {
     );
   };
 
+  const toggleFavorite = async (targetType: "club" | "spot", targetId: string, isFavorite: boolean) => {
+    if (!currentUserId) {
+      setError("Debes iniciar sesión para usar favoritos.");
+      return;
+    }
+    if (isFavorite) {
+      await (supabase as any)
+        .from("user_favorites")
+        .delete()
+        .eq("user_id", currentUserId)
+        .eq("target_type", targetType)
+        .eq("target_id", targetId);
+      setInfo("Eliminado de favoritos.");
+    } else {
+      await (supabase as any).from("user_favorites").insert({
+        user_id: currentUserId,
+        target_type: targetType,
+        target_id: targetId
+      });
+      setInfo("Añadido a favoritos.");
+      if (targetType === "club") {
+        await (supabase as any).from("club_interactions").insert({
+          club_id: targetId,
+          user_id: currentUserId,
+          event_type: "favorite"
+        });
+      }
+    }
+    if (targetType === "club") await loadClubs();
+    else await loadSpots();
+  };
+
+  const reportSpot = async (spotId: string) => {
+    if (!currentUserId) {
+      setError("Debes iniciar sesión para reportar.");
+      return;
+    }
+    const { error: reportError } = await (supabase as any).from("smoke_spot_reports").insert({
+      spot_id: spotId,
+      reporter_id: currentUserId,
+      reason: "Reporte enviado por usuario desde mapa"
+    });
+    if (reportError) {
+      setError("No se pudo enviar el reporte.");
+      return;
+    }
+    setInfo("Reporte enviado. Gracias por ayudar a moderar.");
+  };
+
   if (Platform.OS === "web") {
     const WebInteractiveMap = require("../../src/features/map/components/WebInteractiveMap").WebInteractiveMap as React.ComponentType<{
       items: Array<{ id: string; name: string; latitude: number; longitude: number; pinType: "club" | "spot" }>;
@@ -420,6 +547,22 @@ export default function MapScreen() {
               <Text className={`text-center text-sm ${mode === "spots" ? "text-white" : "text-botanical-muted"}`}>Spots</Text>
             </Pressable>
           </View>
+          {mode === "clubs" ? (
+            <Pressable className={`mb-3 rounded-full px-4 py-2 ${onlyOpenNow ? "bg-botanical-primary" : "bg-white"}`} onPress={() => setOnlyOpenNow((prev) => !prev)}>
+              <Text className={`text-center text-sm ${onlyOpenNow ? "text-white" : "text-botanical-muted"}`}>Solo abiertos ahora</Text>
+            </Pressable>
+          ) : (
+            <View className="mb-3 flex-row gap-2">
+              <View className="flex-1">
+                <Text className="mb-1 text-xs text-botanical-muted">Peligrosidad máxima</Text>
+                <TextInput value={maxDangerFilter} onChangeText={setMaxDangerFilter} className="rounded-2xl border border-botanical-line bg-white px-3 py-2" />
+              </View>
+              <View className="flex-1">
+                <Text className="mb-1 text-xs text-botanical-muted">Tranquilidad mínima</Text>
+                <TextInput value={minTranquilityFilter} onChangeText={setMinTranquilityFilter} className="rounded-2xl border border-botanical-line bg-white px-3 py-2" />
+              </View>
+            </View>
+          )}
           <TextInput
             value={search}
             onChangeText={setSearch}
@@ -440,6 +583,16 @@ export default function MapScreen() {
               </Text>
               <TextInput value={spotName} onChangeText={setSpotName} placeholder="Nombre del spot" className="mb-2 rounded-2xl border border-botanical-line px-3 py-2" />
               <TextInput value={spotDescription} onChangeText={setSpotDescription} placeholder="Descripción (opcional)" className="mb-2 rounded-2xl border border-botanical-line px-3 py-2" />
+              <TextInput value={spotImageUrl} onChangeText={setSpotImageUrl} placeholder="URL foto spot (opcional)" className="mb-2 rounded-2xl border border-botanical-line px-3 py-2" />
+              {Platform.OS === "web" ? (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setSpotImageFile(event.target.files?.[0] ?? null)}
+                  style={{ marginBottom: 8 }}
+                />
+              ) : null}
+              <TextInput value={spotTags} onChangeText={setSpotTags} placeholder="Tags rápidos (coma): tranquilo, sombra, discreto" className="mb-2 rounded-2xl border border-botanical-line px-3 py-2" />
               <View className="mb-2 flex-row gap-2">
                 <TextInput value={spotLat} onChangeText={setSpotLat} placeholder="Lat" className="flex-1 rounded-2xl border border-botanical-line px-3 py-2" />
                 <TextInput value={spotLng} onChangeText={setSpotLng} placeholder="Lng" className="flex-1 rounded-2xl border border-botanical-line px-3 py-2" />
@@ -482,6 +635,21 @@ export default function MapScreen() {
               }}
             >
               <Text className="text-botanical-muted">{item.name}</Text>
+              {mode === "clubs" ? (
+                <Pressable
+                  className="absolute right-3 top-2"
+                  onPress={() => void toggleFavorite("club", item.id, Boolean((item as ClubMapItem).isFavorite))}
+                >
+                  <Text>{(item as ClubMapItem).isFavorite ? "★" : "☆"}</Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  className="absolute right-3 top-2"
+                  onPress={() => void toggleFavorite("spot", item.id, Boolean((item as SpotMapItem).isFavorite))}
+                >
+                  <Text>{(item as SpotMapItem).isFavorite ? "★" : "☆"}</Text>
+                </Pressable>
+              )}
             </Pressable>
           ))}
           <View className="mt-3 h-[420px] rounded-3xl border border-botanical-line bg-white p-2">
@@ -519,6 +687,12 @@ export default function MapScreen() {
               <Text className="text-xs text-botanical-text">Tranquilidad: {selectedSpot.tranquilityLevel}/5</Text>
               <Text className="text-xs text-botanical-text">Comodidad: {selectedSpot.comfortLevel}/5</Text>
             </View>
+            {selectedSpot.imageUrl ? (
+              <Text className="mt-2 text-xs text-botanical-muted">Foto: {selectedSpot.imageUrl}</Text>
+            ) : null}
+            {selectedSpot.tags.length > 0 ? (
+              <Text className="mt-1 text-xs text-botanical-muted">Tags: {selectedSpot.tags.join(" · ")}</Text>
+            ) : null}
             <Text className="mt-2 text-xs text-botanical-muted">Score comunidad: {selectedSpot.score}</Text>
             <View className="mt-2 flex-row gap-2">
               <Pressable
@@ -545,6 +719,9 @@ export default function MapScreen() {
                 </Pressable>
               </View>
             ) : null}
+            <Pressable className="mt-2 rounded-full border border-amber-300 px-4 py-2" onPress={() => void reportSpot(selectedSpot.id)}>
+              <Text className="text-xs font-semibold text-amber-700">Reportar spot</Text>
+            </Pressable>
           </View>
         ) : null}
       </View>
@@ -635,6 +812,12 @@ export default function MapScreen() {
             <Text className="text-xs text-botanical-text">Tranquilidad: {selectedSpot.tranquilityLevel}/5</Text>
             <Text className="text-xs text-botanical-text">Comodidad: {selectedSpot.comfortLevel}/5</Text>
           </View>
+          {selectedSpot.imageUrl ? (
+            <Text className="mt-2 text-xs text-botanical-muted">Foto: {selectedSpot.imageUrl}</Text>
+          ) : null}
+          {selectedSpot.tags.length > 0 ? (
+            <Text className="mt-1 text-xs text-botanical-muted">Tags: {selectedSpot.tags.join(" · ")}</Text>
+          ) : null}
           <Text className="mt-2 text-xs text-botanical-muted">Score comunidad: {selectedSpot.score}</Text>
           <View className="mt-2 flex-row gap-2">
             <Pressable
@@ -661,6 +844,9 @@ export default function MapScreen() {
               </Pressable>
             </View>
           ) : null}
+          <Pressable className="mt-2 rounded-full border border-amber-300 px-4 py-2" onPress={() => void reportSpot(selectedSpot.id)}>
+            <Text className="text-xs font-semibold text-amber-700">Reportar spot</Text>
+          </Pressable>
         </View>
       ) : null}
     </View>
